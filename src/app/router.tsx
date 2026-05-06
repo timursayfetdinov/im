@@ -41,6 +41,7 @@ const routeTree = rootRoute.addChildren([
 export const router = createRouter({
   routeTree,
   defaultPreload: 'intent',
+  basepath: '/im',
 });
 
 declare module '@tanstack/react-router' {
