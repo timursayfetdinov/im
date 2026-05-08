@@ -3,8 +3,10 @@ import { Handle, Position } from '@xyflow/react';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
+import { alpha } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles';
 import FlagIcon from '@mui/icons-material/Flag';
-import StarIcon from '@mui/icons-material/Star';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 
 import type { StepNodeData } from '../lib/buildDiagramGraph';
 import { STEP_META } from '../config/stepMeta';
@@ -18,13 +20,31 @@ export const StepNode = memo(function StepNode({ data }: Props) {
   const { step, isInitial, isOrphan } = data;
   const meta = STEP_META[step.type];
 
+  const theme = useTheme();
+  const initialAccent = {
+    key: 'success.main' as const,
+    hex: theme.palette.success.main,
+  };
+  const finishAccent = {
+    key: 'error.main' as const,
+    hex: theme.palette.error.main,
+  };
+
   const borderColor = isOrphan
     ? '#94a3b8'
-    : isInitial
-      ? '#f59e0b'
-      : meta.color;
+    : step.finish
+      ? finishAccent.hex
+      : isInitial
+        ? initialAccent.hex
+        : meta.color;
 
-  const bgColor = step.finish ? '#f0fdf4' : isOrphan ? '#f8fafc' : '#fff';
+  const bgColor = isOrphan
+    ? '#f8fafc'
+    : step.finish
+      ? alpha(theme.palette.error.main, 0.08)
+      : isInitial
+        ? alpha(theme.palette.success.main, 0.08)
+        : '#fff';
   const opacity = isOrphan ? 0.6 : 1;
 
   const viewLabel = getViewLabel(step);
@@ -61,10 +81,13 @@ export const StepNode = memo(function StepNode({ data }: Props) {
           }}
         />
         {isInitial && (
-          <StarIcon sx={{ fontSize: 14, color: '#f59e0b' }} titleAccess="Начальный шаг" />
+          <PlayArrowIcon
+            sx={{ fontSize: 14, color: initialAccent.key }}
+            titleAccess="Начальный шаг"
+          />
         )}
         {step.finish && (
-          <FlagIcon sx={{ fontSize: 14, color: '#16a34a' }} titleAccess="Завершающий шаг" />
+          <FlagIcon sx={{ fontSize: 14, color: finishAccent.key }} titleAccess="Завершающий шаг" />
         )}
       </Box>
 
