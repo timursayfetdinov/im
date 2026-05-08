@@ -44,6 +44,7 @@ const stepBaseSchema = z.object({
   multitasking: z.boolean(),
   report: z.boolean(),
   finish: z.boolean(),
+  initial: z.boolean(),
   transitions: transitionsSchema,
 });
 

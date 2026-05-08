@@ -18,8 +18,6 @@ import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import ToggleButton from '@mui/material/ToggleButton';
@@ -54,13 +52,13 @@ export function EditorPage() {
   const { data: scenarioData, isLoading, isError } = useScenario(id);
   const saveMutation = useSaveScenario();
 
-  const loadScenario = useEditorStore((s) => s.loadScenario);
-  const updateMeta = useEditorStore((s) => s.updateMeta);
-  const clearScenario = useEditorStore((s) => s.clearScenario);
-  const scenario = useEditorStore((s) => s.scenario);
-  const isDirty = useEditorStore((s) => s.isDirty);
-  const validationErrors = useEditorStore((s) => s.validationErrors);
-  const openStep = useEditorStore((s) => s.openStep);
+  const loadScenario = useEditorStore(s => s.loadScenario);
+  const updateMeta = useEditorStore(s => s.updateMeta);
+  const clearScenario = useEditorStore(s => s.clearScenario);
+  const scenario = useEditorStore(s => s.scenario);
+  const isDirty = useEditorStore(s => s.isDirty);
+  const validationErrors = useEditorStore(s => s.validationErrors);
+  const openStep = useEditorStore(s => s.openStep);
 
   const [errorsExpanded, setErrorsExpanded] = useState(false);
   const [saveConfirmOpen, setSaveConfirmOpen] = useState(false);
@@ -109,7 +107,9 @@ export function EditorPage() {
 
   if (isLoading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100dvh' }}>
+      <Box
+        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100dvh' }}
+      >
         <CircularProgress />
       </Box>
     );
@@ -117,14 +117,15 @@ export function EditorPage() {
 
   if (isError || !scenario) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100dvh' }}>
+      <Box
+        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100dvh' }}
+      >
         <Typography color="error">Сценарий не найден</Typography>
       </Box>
     );
   }
 
   const meta = scenario.scenario;
-  const steps = scenario.steps;
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100dvh', overflow: 'hidden' }}>
@@ -139,7 +140,7 @@ export function EditorPage() {
 
           <TextField
             value={meta.name}
-            onChange={(e) => updateMeta({ name: e.target.value })}
+            onChange={e => updateMeta({ name: e.target.value })}
             variant="standard"
             sx={{ flexGrow: 1, maxWidth: 400 }}
             slotProps={{
@@ -163,7 +164,7 @@ export function EditorPage() {
                 label={`Ошибки: ${validationErrors.length}`}
                 color="error"
                 size="small"
-                onClick={() => setErrorsExpanded((v) => !v)}
+                onClick={() => setErrorsExpanded(v => !v)}
                 sx={{ cursor: 'pointer' }}
               />
             </Tooltip>
@@ -173,7 +174,9 @@ export function EditorPage() {
             value={viewMode}
             exclusive
             size="small"
-            onChange={(_, val) => { if (val) setViewMode(val); }}
+            onChange={(_, val) => {
+              if (val) setViewMode(val);
+            }}
           >
             <Tooltip title="Таблица шагов">
               <ToggleButton value="table" aria-label="Таблица">
@@ -192,7 +195,7 @@ export function EditorPage() {
           <Button
             startIcon={<PreviewOutlinedIcon />}
             size="small"
-            onClick={() => navigate({ to: '/scenarios/$id/preview', params: { id } })}
+            onClick={() => navigate({ to: `/scenarios/${id}/preview` })}
           >
             Preview
           </Button>
@@ -212,7 +215,17 @@ export function EditorPage() {
 
         {/* Collapsible error list */}
         <Collapse in={errorsExpanded}>
-          <List dense disablePadding sx={{ borderTop: 1, borderColor: 'divider', maxHeight: 240, overflowY: 'auto', bgcolor: 'error.50' }}>
+          <List
+            dense
+            disablePadding
+            sx={{
+              borderTop: 1,
+              borderColor: 'divider',
+              maxHeight: 240,
+              overflowY: 'auto',
+              bgcolor: 'error.50',
+            }}
+          >
             {validationErrors.map((err, i) => (
               <ListItemButton
                 key={i}
@@ -236,7 +249,7 @@ export function EditorPage() {
       {/* Table mode */}
       {viewMode === 'table' && (
         <Box sx={{ flexGrow: 1, overflow: 'auto', p: 3 }}>
-          <Accordion disableGutters variant="outlined" sx={{ mb: 2 }}>
+          <Accordion defaultExpanded disableGutters variant="outlined" sx={{ mb: 2 }}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <Typography variant="subtitle2">Настройки сценария</Typography>
               <Typography variant="caption" color="text.secondary" sx={{ ml: 1.5 }}>
@@ -248,33 +261,12 @@ export function EditorPage() {
                 <TextField
                   label="Описание"
                   value={meta.description}
-                  onChange={(e) => updateMeta({ description: e.target.value })}
+                  onChange={e => updateMeta({ description: e.target.value })}
                   multiline
                   rows={2}
                   size="small"
                   fullWidth
                 />
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Typography variant="body2" sx={{ whiteSpace: 'nowrap', minWidth: 120 }}>
-                    Начальный шаг:
-                  </Typography>
-                  <Select
-                    value={meta.initialStep}
-                    onChange={(e) => updateMeta({ initialStep: e.target.value })}
-                    size="small"
-                    displayEmpty
-                    sx={{ minWidth: 220 }}
-                  >
-                    <MenuItem value="">
-                      <em>Не выбран</em>
-                    </MenuItem>
-                    {steps.map((s) => (
-                      <MenuItem key={s.id} value={s.id}>
-                        {s.title || s.id}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </Box>
               </Stack>
             </AccordionDetails>
           </Accordion>
@@ -297,13 +289,22 @@ export function EditorPage() {
       {viewMode === 'table' && <StepDrawer />}
 
       {/* Save with errors confirm */}
-      <Dialog open={saveConfirmOpen} onClose={() => setSaveConfirmOpen(false)} maxWidth="xs" fullWidth>
+      <Dialog
+        open={saveConfirmOpen}
+        onClose={() => setSaveConfirmOpen(false)}
+        maxWidth="xs"
+        fullWidth
+      >
         <DialogTitle>Сохранить с ошибками?</DialogTitle>
         <DialogContent>
           <DialogContentText>
             Сценарий содержит {validationErrors.length}{' '}
-            {validationErrors.length === 1 ? 'ошибку' : validationErrors.length < 5 ? 'ошибки' : 'ошибок'}.
-            Он будет сохранён как черновик.
+            {validationErrors.length === 1
+              ? 'ошибку'
+              : validationErrors.length < 5
+                ? 'ошибки'
+                : 'ошибок'}
+            . Он будет сохранён как черновик.
           </DialogContentText>
         </DialogContent>
         <DialogActions>

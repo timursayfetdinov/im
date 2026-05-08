@@ -17,7 +17,7 @@ import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import FlagIcon from '@mui/icons-material/Flag';
-import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
 
 import {
@@ -49,9 +49,8 @@ const EMPTY_ERRORS: import('../../../shared/types/scenario').ValidationError[] =
 // ─── Transition summary ───────────────────────────────────────────────────────
 
 function transitionSummary(step: Step, allSteps: Step[]): string {
-  const stepMap = new Map(allSteps.map((s) => [s.id, s.title || s.id]));
-  const resolve = (id: string | null) =>
-    id === null ? 'Завершение' : (stepMap.get(id) ?? id);
+  const stepMap = new Map(allSteps.map(s => [s.id, s.title || s.id]));
+  const resolve = (id: string | null) => (id === null ? 'Завершение' : (stepMap.get(id) ?? id));
 
   const rules = step.transitions.rules ?? [];
   const def = resolve(step.transitions.default.goto);
@@ -115,40 +114,40 @@ function SortableRow({ step, allSteps, errorCount, onEdit, onDuplicate, onDelete
           }}
         />
       </TableCell>
-
-      {/* ID */}
-      <TableCell sx={{ width: 160 }}>
-        <Typography variant="body2" sx={{ fontFamily: 'monospace', fontSize: '0.78rem', color: 'text.secondary' }}>
-          {step.id || <em style={{ opacity: 0.5 }}>—</em>}
-        </Typography>
-      </TableCell>
-
       {/* Title */}
       <TableCell>
         <Typography variant="body2">
-          {step.title || <Typography component="span" variant="body2" color="text.disabled">Без названия</Typography>}
+          {step.title || (
+            <Typography component="span" variant="body2" color="text.disabled">
+              Без названия
+            </Typography>
+          )}
         </Typography>
       </TableCell>
 
       {/* Flags */}
       <TableCell sx={{ width: 80 }}>
         <Box sx={{ display: 'flex', gap: 0.5 }}>
-          <Tooltip title="finish">
-            <FlagIcon fontSize="small" sx={{ color: step.finish ? 'error.main' : 'action.disabled' }} />
-          </Tooltip>
-          <Tooltip title="report">
-            <AssignmentOutlinedIcon
-              fontSize="small"
-              sx={{ color: step.report ? 'warning.main' : 'action.disabled' }}
-            />
-          </Tooltip>
+          {step.initial ? (
+            <Tooltip title="start">
+              <PlayArrowIcon fontSize="small" sx={{ color: 'success.main' }} />
+            </Tooltip>
+          ) : null}
+          {step.finish ? (
+            <Tooltip title="finish">
+              <FlagIcon fontSize="small" color="error" />
+            </Tooltip>
+          ) : null}
         </Box>
       </TableCell>
 
       {/* Transitions */}
       <TableCell sx={{ maxWidth: 200 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          <AccountTreeOutlinedIcon fontSize="small" sx={{ color: 'text.disabled', flexShrink: 0 }} />
+          <AccountTreeOutlinedIcon
+            fontSize="small"
+            sx={{ color: 'text.disabled', flexShrink: 0 }}
+          />
           <Typography
             variant="body2"
             color="text.secondary"
@@ -161,9 +160,7 @@ function SortableRow({ step, allSteps, errorCount, onEdit, onDuplicate, onDelete
 
       {/* Errors */}
       <TableCell sx={{ width: 80 }}>
-        {errorCount > 0 && (
-          <Chip label={errorCount} color="error" size="small" onClick={onEdit} />
-        )}
+        {errorCount > 0 && <Chip label={errorCount} color="error" size="small" onClick={onEdit} />}
       </TableCell>
 
       {/* Actions */}
@@ -191,13 +188,13 @@ function SortableRow({ step, allSteps, errorCount, onEdit, onDuplicate, onDelete
 // ─── Main table ───────────────────────────────────────────────────────────────
 
 export function StepsTable() {
-  const steps = useEditorStore((s) => s.scenario?.steps ?? EMPTY_STEPS);
-  const validationErrors = useEditorStore((s) => s.validationErrors ?? EMPTY_ERRORS);
-  const addStep = useEditorStore((s) => s.addStep);
-  const duplicateStep = useEditorStore((s) => s.duplicateStep);
-  const removeStep = useEditorStore((s) => s.removeStep);
-  const reorderSteps = useEditorStore((s) => s.reorderSteps);
-  const openStep = useEditorStore((s) => s.openStep);
+  const steps = useEditorStore(s => s.scenario?.steps ?? EMPTY_STEPS);
+  const validationErrors = useEditorStore(s => s.validationErrors ?? EMPTY_ERRORS);
+  const addStep = useEditorStore(s => s.addStep);
+  const duplicateStep = useEditorStore(s => s.duplicateStep);
+  const removeStep = useEditorStore(s => s.removeStep);
+  const reorderSteps = useEditorStore(s => s.reorderSteps);
+  const openStep = useEditorStore(s => s.openStep);
 
   const [addDialogOpen, setAddDialogOpen] = useState(false);
 
@@ -209,8 +206,8 @@ export function StepsTable() {
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-    const fromIndex = steps.findIndex((s) => s.id === active.id);
-    const toIndex = steps.findIndex((s) => s.id === over.id);
+    const fromIndex = steps.findIndex(s => s.id === active.id);
+    const toIndex = steps.findIndex(s => s.id === over.id);
     if (fromIndex !== -1 && toIndex !== -1) reorderSteps(fromIndex, toIndex);
   }
 
@@ -226,17 +223,22 @@ export function StepsTable() {
             <TableRow>
               <TableCell sx={{ width: 32 }} />
               <TableCell>Тип</TableCell>
-              <TableCell>ID</TableCell>
               <TableCell>Название</TableCell>
               <TableCell sx={{ width: 80 }}>Флаги</TableCell>
               <TableCell>Переходы</TableCell>
               <TableCell sx={{ width: 80 }}>Ошибки</TableCell>
-              <TableCell align="right" sx={{ width: 120 }}>Действия</TableCell>
+              <TableCell align="right" sx={{ width: 120 }}>
+                Действия
+              </TableCell>
             </TableRow>
           </TableHead>
 
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={steps.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext items={steps.map(s => s.id)} strategy={verticalListSortingStrategy}>
               <TableBody>
                 {steps.length === 0 ? (
                   <TableRow>
@@ -255,12 +257,12 @@ export function StepsTable() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  steps.map((step) => (
+                  steps.map(step => (
                     <SortableRow
                       key={step.id}
                       step={step}
                       allSteps={steps}
-                      errorCount={validationErrors.filter((e) => e.stepId === step.id).length}
+                      errorCount={validationErrors.filter(e => e.stepId === step.id).length}
                       onEdit={() => openStep(step.id, 0)}
                       onDuplicate={() => duplicateStep(step.id)}
                       onDelete={() => removeStep(step.id)}

@@ -23,8 +23,9 @@ export function createDefaultStep(type: StepType): Step {
     description: '',
     editable: true,
     multitasking: false,
-    report: false,
+    report: true,
     finish: false,
+    initial: false,
     transitions: defaultTransitions(),
   };
 

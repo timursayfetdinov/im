@@ -4,14 +4,20 @@ export function validateScenario(scenario: Scenario): ValidationError[] {
   const errors: ValidationError[] = [];
   const { steps, scenario: meta } = scenario;
 
+  const initialSteps = steps.filter(s => s.initial);
+  const resolvedInitial = initialSteps.length === 1 ? initialSteps[0]!.id : meta.initialStep;
+
   // Rule 9: At least one finish step
   if (!steps.some(s => s.finish)) {
     errors.push({ code: 'NO_FINISH_STEP', message: 'Сценарий должен содержать хотя бы один финальный шаг (finish: true)' });
   }
 
-  // Rule: initialStep not empty
-  if (!meta.initialStep) {
+  // Rule: exactly one initial step
+  if (initialSteps.length === 0 && !meta.initialStep) {
     errors.push({ code: 'EMPTY_INITIAL_STEP', message: 'Не указан начальный шаг сценария', field: 'initialStep' });
+  }
+  if (initialSteps.length > 1) {
+    errors.push({ code: 'INVALID_INITIAL_STEP', message: 'Указано несколько начальных шагов (должен быть один)', field: 'initialStep' });
   }
 
   const stepIds = new Set<string>();
@@ -37,8 +43,12 @@ export function validateScenario(scenario: Scenario): ValidationError[] {
   }
 
   // Rule 2: initialStep references existing step
-  if (meta.initialStep && !stepIds.has(meta.initialStep)) {
-    errors.push({ code: 'INVALID_INITIAL_STEP', message: `Начальный шаг "${meta.initialStep}" не найден среди шагов`, field: 'initialStep' });
+  if (resolvedInitial && !stepIds.has(resolvedInitial)) {
+    errors.push({
+      code: 'INVALID_INITIAL_STEP',
+      message: `Начальный шаг "${resolvedInitial}" не найден среди шагов`,
+      field: 'initialStep',
+    });
   }
 
   for (const step of steps) {
@@ -78,10 +88,10 @@ export function validateScenario(scenario: Scenario): ValidationError[] {
   }
 
   // Rule 8: All steps reachable from initialStep
-  if (meta.initialStep && stepIds.has(meta.initialStep)) {
-    const reachable = getReachableSteps(meta.initialStep, steps);
+  if (resolvedInitial && stepIds.has(resolvedInitial)) {
+    const reachable = getReachableSteps(resolvedInitial, steps);
     for (const step of steps) {
-      if (step.id && !reachable.has(step.id) && step.id !== meta.initialStep) {
+      if (step.id && !reachable.has(step.id) && step.id !== resolvedInitial) {
         errors.push({
           code: 'STEP_NOT_REACHABLE',
           message: `Шаг "${step.id}" недостижим из начального шага`,

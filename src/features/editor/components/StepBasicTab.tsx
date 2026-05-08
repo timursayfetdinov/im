@@ -20,12 +20,12 @@ function useStepFieldError(stepId: string, field: string): string | undefined {
 
 type Props = { step: Step };
 
-type BoolField = 'finish' | 'report' | 'editable' | 'multitasking';
+type BoolField = 'initial' | 'finish' | 'report' | 'editable' | 'multitasking';
 type TextField_ = 'id' | 'title' | 'description';
 
 const BOOL_FIELDS: { name: BoolField; label: string; hint: string }[] = [
+  { name: 'initial', label: 'Начальный шаг', hint: 'С этого шага начинается сценарий' },
   { name: 'finish', label: 'Завершение сценария', hint: 'Этот шаг является финальным' },
-  { name: 'report', label: 'Включить в отчёт', hint: 'Значение шага попадёт в итоговый отчёт' },
   {
     name: 'editable',
     label: 'Редактируемый',
@@ -52,6 +52,7 @@ export function StepBasicTab({ step }: Props) {
       id: step.id,
       title: step.title,
       description: step.description,
+      initial: step.initial,
       finish: step.finish,
       report: step.report,
       editable: step.editable,

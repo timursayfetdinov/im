@@ -10,6 +10,8 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+screenshots
+scripts
 *.local
 *.cursor
 docs

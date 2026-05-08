@@ -25,17 +25,7 @@ import type {
 import { useEditorStore } from '../store/editorStore';
 import { ConditionBuilderDialog } from './ConditionBuilderDialog';
 
-// Sentinel value for "goto: null" (end of scenario) inside MUI Select
-const GOTO_END = '__END__';
-
 const EMPTY_STEPS: Step[] = [];
-
-function gotoToValue(goto: string | null): string {
-  return goto === null ? GOTO_END : goto;
-}
-function valueToGoto(value: string): string | null {
-  return value === GOTO_END ? null : value;
-}
 
 // ─── Condition chip + edit button ─────────────────────────────────────────────
 
@@ -96,11 +86,11 @@ function GotoSelect({
       label="Перейти к"
       size="small"
       fullWidth
-      value={gotoToValue(value)}
-      onChange={(e) => onChange(valueToGoto(e.target.value))}
+      value={value ?? ''}
+      onChange={(e) => onChange(e.target.value ? e.target.value : null)}
     >
-      <MenuItem value={GOTO_END}>
-        <em>— Завершение сценария —</em>
+      <MenuItem value="">
+        <em>Не выбрано</em>
       </MenuItem>
       {steps.map((s) => (
         <MenuItem key={s.id} value={s.id}>

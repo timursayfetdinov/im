@@ -65,7 +65,15 @@ export const useEditorStore = create<EditorState & EditorActions>()(
 
     loadScenario: scenario =>
       set(s => {
-        s.scenario = scenario;
+        // Hydrate per-step `initial` flag from scenario meta for legacy data shape
+        const initialId = scenario.scenario.initialStep;
+        const hydrated: Scenario = {
+          ...scenario,
+          scenario: { ...scenario.scenario },
+          steps: scenario.steps.map(st => ({ ...st, initial: st.id === initialId })),
+        };
+
+        s.scenario = hydrated;
         s.isDirty = false;
         s.openStepId = null;
         revalidate(s);
@@ -92,6 +100,11 @@ export const useEditorStore = create<EditorState & EditorActions>()(
         if (!s.scenario) return;
         const step = createDefaultStep(type);
         step.id = nanoid();
+        // If it's the first step (or initial not set), make it initial by default
+        if (!s.scenario.scenario.initialStep) {
+          step.initial = true;
+          s.scenario.scenario.initialStep = step.id;
+        }
         s.scenario.steps.push(step as Step);
         s.openStepId = step.id;
         s.drawerTab = 0;
@@ -105,9 +118,31 @@ export const useEditorStore = create<EditorState & EditorActions>()(
         const step = s.scenario.steps.find(st => st.id === id);
         if (!step) return;
         Object.assign(step, patch);
+
+        // Keep scenario meta initialStep in sync with per-step `initial` flag.
+        if ('initial' in patch) {
+          if (patch.initial) {
+            for (const st of s.scenario.steps) st.initial = st.id === step.id;
+            s.scenario.scenario.initialStep = step.id;
+          } else {
+            // If user unsets the current initial step, clear meta too.
+            if (s.scenario.scenario.initialStep === step.id) {
+              s.scenario.scenario.initialStep = '';
+            }
+          }
+        }
+
         // Keep openStepId in sync when the step's own id changes
         if ('id' in patch && patch.id && s.openStepId === id) {
           s.openStepId = patch.id as string;
+        }
+
+        // If this step is initial, update meta.initialStep when its id changes
+        if ('id' in patch && patch.id) {
+          const newId = patch.id as string;
+          if (s.scenario.scenario.initialStep === id) {
+            s.scenario.scenario.initialStep = newId;
+          }
         }
         s.isDirty = true;
         revalidate(s);
