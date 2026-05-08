@@ -21,7 +21,7 @@ import { StepTransitionsTab } from './StepTransitionsTab';
 function tabErrorCount(errors: ValidationError[], stepId: string, tab: 0 | 1 | 2): number {
   return errors.filter((e) => {
     if (e.stepId !== stepId) return false;
-    if (tab === 0) return !e.field || e.field === 'id' || e.field === 'title' || e.field === 'finish' || e.code === 'STEP_NOT_REACHABLE';
+    if (tab === 0) return !e.field || e.field === 'title' || e.field === 'finish' || e.code === 'STEP_NOT_REACHABLE';
     if (tab === 1) return !!e.field?.startsWith('view.');
     if (tab === 2) return e.field === 'transitions';
     return false;
@@ -37,7 +37,7 @@ function TabLabel({ label, count }: { label: string; count: number }) {
   );
 }
 
-export function StepDrawer() {
+export function StepDrawer({ onRequestDelete }: { onRequestDelete?: (stepId: string) => void }) {
   const step = useEditorStore((s) =>
     s.openStepId ? (s.scenario?.steps.find((st) => st.id === s.openStepId) ?? null) : null
   );
@@ -82,7 +82,11 @@ export function StepDrawer() {
               </IconButton>
             </Tooltip>
             <Tooltip title="Удалить">
-              <IconButton size="small" color="error" onClick={() => removeStep(step.id)}>
+              <IconButton
+                size="small"
+                color="error"
+                onClick={() => (onRequestDelete ? onRequestDelete(step.id) : removeStep(step.id))}
+              >
                 <DeleteOutlinedIcon fontSize="small" />
               </IconButton>
             </Tooltip>

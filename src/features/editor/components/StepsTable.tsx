@@ -187,7 +187,7 @@ function SortableRow({ step, allSteps, errorCount, onEdit, onDuplicate, onDelete
 
 // ─── Main table ───────────────────────────────────────────────────────────────
 
-export function StepsTable() {
+export function StepsTable({ onRequestDelete }: { onRequestDelete?: (stepId: string) => void }) {
   const steps = useEditorStore(s => s.scenario?.steps ?? EMPTY_STEPS);
   const validationErrors = useEditorStore(s => s.validationErrors ?? EMPTY_ERRORS);
   const addStep = useEditorStore(s => s.addStep);
@@ -265,7 +265,7 @@ export function StepsTable() {
                       errorCount={validationErrors.filter(e => e.stepId === step.id).length}
                       onEdit={() => openStep(step.id, 0)}
                       onDuplicate={() => duplicateStep(step.id)}
-                      onDelete={() => removeStep(step.id)}
+                      onDelete={() => (onRequestDelete ? onRequestDelete(step.id) : removeStep(step.id))}
                     />
                   ))
                 )}

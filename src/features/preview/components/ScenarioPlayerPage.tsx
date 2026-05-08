@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
@@ -7,17 +7,26 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
 import Toolbar from '@mui/material/Toolbar';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
+import CloseIcon from '@mui/icons-material/Close';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import DataObjectOutlinedIcon from '@mui/icons-material/DataObjectOutlined';
+import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { useNavigate, useParams } from '@tanstack/react-router';
@@ -47,6 +56,50 @@ function FinishScreen({
   onReset: () => void;
   onGoToStep: (index: number) => void;
 }) {
+  const [jsonOpen, setJsonOpen] = useState(false);
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle');
+
+  const resultJson = useMemo(() => {
+    const result = {
+      scenario: {
+        id: scenario.scenario.id,
+        name: scenario.scenario.name,
+        version: scenario.scenario.version,
+      },
+      finishedAt: new Date().toISOString(),
+      history: history.map((h) => ({
+        stepId: h.step.id,
+        title: h.step.title,
+        type: h.step.type,
+        value: h.value,
+      })),
+    };
+    return JSON.stringify(result, null, 2);
+  }, [history, scenario.scenario.id, scenario.scenario.name, scenario.scenario.version]);
+
+  async function handleCopyJson() {
+    try {
+      await navigator.clipboard.writeText(resultJson);
+      setCopyState('copied');
+      window.setTimeout(() => setCopyState('idle'), 1500);
+    } catch {
+      setCopyState('error');
+      window.setTimeout(() => setCopyState('idle'), 2500);
+    }
+  }
+
+  function handleDownloadJson() {
+    const blob = new Blob([resultJson], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `scenario-result-${scenario.scenario.id}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
   return (
     <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
       <Card variant="outlined" sx={{ maxWidth: 560, width: '100%' }}>
@@ -87,13 +140,57 @@ function FinishScreen({
             ))}
           </List>
 
-          <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
+          <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', gap: 1, flexWrap: 'wrap' }}>
             <Button startIcon={<RefreshIcon />} variant="outlined" onClick={onReset}>
               Сбросить и пройти снова
+            </Button>
+            <Button startIcon={<DataObjectOutlinedIcon />} variant="outlined" onClick={() => setJsonOpen(true)}>
+              JSON
             </Button>
           </Box>
         </CardContent>
       </Card>
+
+      <Dialog open={jsonOpen} onClose={() => setJsonOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle sx={{ pr: 6 }}>
+          JSON результата
+          <IconButton
+            aria-label="Закрыть"
+            onClick={() => setJsonOpen(false)}
+            sx={{ position: 'absolute', right: 8, top: 8, color: 'text.secondary' }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            value={resultJson}
+            fullWidth
+            multiline
+            minRows={18}
+            size="small"
+            slotProps={{
+              input: {
+                readOnly: true,
+                sx: { fontFamily: 'monospace', fontSize: '0.8rem' },
+              },
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            startIcon={<ContentCopyIcon />}
+            onClick={handleCopyJson}
+            color={copyState === 'error' ? 'error' : 'primary'}
+          >
+            {copyState === 'copied' ? 'Скопировано' : copyState === 'error' ? 'Не удалось' : 'Скопировать'}
+          </Button>
+          <Button startIcon={<DownloadOutlinedIcon />} onClick={handleDownloadJson}>
+            Скачать
+          </Button>
+          <Button onClick={() => setJsonOpen(false)}>Закрыть</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

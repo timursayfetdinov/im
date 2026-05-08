@@ -14,6 +14,22 @@ import { createDefaultStep } from './defaultViews';
 
 type DrawerTab = 0 | 1 | 2; // Основное | Настройки | Переходы
 
+function escapeRegExp(s: string) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function makeUniqueDefaultTitle(existing: Step[], base: string): string {
+  const re = new RegExp(`^${escapeRegExp(base)}\\s+(\\d+)$`);
+  const used = new Set<number>();
+  for (const st of existing) {
+    const m = re.exec(st.title.trim());
+    if (m) used.add(Number(m[1]));
+  }
+  let n = 1;
+  while (used.has(n)) n += 1;
+  return `${base} ${n}`;
+}
+
 type EditorState = {
   scenario: Scenario | null;
   validationErrors: ValidationError[];
@@ -30,7 +46,10 @@ type EditorActions = {
 
   // Steps
   addStep: (type: StepType) => void;
-  updateStep: (id: string, patch: Partial<Omit<Step, 'type' | 'view' | 'transitions'>>) => void;
+  updateStep: (
+    id: string,
+    patch: Partial<Omit<Step, 'id' | 'type' | 'view' | 'transitions'>>
+  ) => void;
   updateStepView: (id: string, view: Step['view']) => void;
   removeStep: (id: string) => void;
   duplicateStep: (id: string) => void;
@@ -100,6 +119,10 @@ export const useEditorStore = create<EditorState & EditorActions>()(
         if (!s.scenario) return;
         const step = createDefaultStep(type);
         step.id = nanoid();
+        // Give a unique default title like "Button 1"
+        if (!step.title.trim()) {
+          step.title = makeUniqueDefaultTitle(s.scenario.steps, type);
+        }
         // If it's the first step (or initial not set), make it initial by default
         if (!s.scenario.scenario.initialStep) {
           step.initial = true;
@@ -117,6 +140,10 @@ export const useEditorStore = create<EditorState & EditorActions>()(
         if (!s.scenario) return;
         const step = s.scenario.steps.find(st => st.id === id);
         if (!step) return;
+        // Step id is immutable in editor. Ignore any attempts to patch it.
+        if ('id' in (patch as Partial<Step>)) {
+          delete (patch as Partial<Step>).id;
+        }
         Object.assign(step, patch);
 
         // Keep scenario meta initialStep in sync with per-step `initial` flag.
@@ -132,18 +159,6 @@ export const useEditorStore = create<EditorState & EditorActions>()(
           }
         }
 
-        // Keep openStepId in sync when the step's own id changes
-        if ('id' in patch && patch.id && s.openStepId === id) {
-          s.openStepId = patch.id as string;
-        }
-
-        // If this step is initial, update meta.initialStep when its id changes
-        if ('id' in patch && patch.id) {
-          const newId = patch.id as string;
-          if (s.scenario.scenario.initialStep === id) {
-            s.scenario.scenario.initialStep = newId;
-          }
-        }
         s.isDirty = true;
         revalidate(s);
       }),

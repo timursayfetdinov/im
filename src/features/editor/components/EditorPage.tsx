@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
@@ -32,6 +32,9 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PreviewOutlinedIcon from '@mui/icons-material/PreviewOutlined';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import TableRowsOutlinedIcon from '@mui/icons-material/TableRowsOutlined';
+import DataObjectOutlinedIcon from '@mui/icons-material/DataObjectOutlined';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate, useParams } from '@tanstack/react-router';
 
 import type { ValidationError } from '../../../shared/types/scenario';
@@ -42,6 +45,7 @@ import { ExportMenu } from './ExportMenu';
 import { ScenarioDiagram } from './ScenarioDiagram';
 import { StepsTable } from './StepsTable';
 import { StepDrawer } from './StepDrawer';
+import { DeleteStepDialog } from './DeleteStepDialog';
 
 type ViewMode = 'table' | 'diagram';
 
@@ -63,6 +67,42 @@ export function EditorPage() {
   const [errorsExpanded, setErrorsExpanded] = useState(false);
   const [saveConfirmOpen, setSaveConfirmOpen] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('table');
+  const [jsonOpen, setJsonOpen] = useState(false);
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle');
+  const [deleteStepId, setDeleteStepId] = useState<string | null>(null);
+
+  const scenarioJson = useMemo(() => (scenario ? JSON.stringify(scenario, null, 2) : ''), [scenario]);
+  const deleteStep = useEditorStore(s => s.removeStep);
+
+  const deleteStepTitle = useMemo(() => {
+    if (!scenario || !deleteStepId) return '';
+    return scenario.steps.find(s => s.id === deleteStepId)?.title ?? '';
+  }, [scenario, deleteStepId]);
+
+  async function handleCopyJson() {
+    try {
+      await navigator.clipboard.writeText(scenarioJson);
+      setCopyState('copied');
+      window.setTimeout(() => setCopyState('idle'), 1500);
+    } catch {
+      setCopyState('error');
+      window.setTimeout(() => setCopyState('idle'), 2500);
+    }
+  }
+
+  function requestDeleteStep(stepId: string) {
+    setDeleteStepId(stepId);
+  }
+
+  function handleCloseDeleteStep() {
+    setDeleteStepId(null);
+  }
+
+  function handleConfirmDeleteStep() {
+    if (!deleteStepId) return;
+    deleteStep(deleteStepId);
+    setDeleteStepId(null);
+  }
 
   // Guard: only load once per scenario ID to avoid infinite update loop.
   // ?? [] is NOT safe inside a Zustand selector (new ref each call → useSyncExternalStore loop).
@@ -202,6 +242,12 @@ export function EditorPage() {
 
           <ExportMenu scenario={scenario} />
 
+          <Tooltip title="Просмотр JSON">
+            <IconButton size="small" onClick={() => setJsonOpen(true)} aria-label="JSON">
+              <DataObjectOutlinedIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+
           <Button
             variant="contained"
             startIcon={<SaveOutlinedIcon />}
@@ -252,9 +298,6 @@ export function EditorPage() {
           <Accordion defaultExpanded disableGutters variant="outlined" sx={{ mb: 2 }}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <Typography variant="subtitle2">Настройки сценария</Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ ml: 1.5 }}>
-                v{meta.version} · {meta.id}
-              </Typography>
             </AccordionSummary>
             <AccordionDetails>
               <Stack spacing={2}>
@@ -274,7 +317,7 @@ export function EditorPage() {
           <Typography variant="subtitle2" sx={{ mb: 1 }}>
             Шаги сценария
           </Typography>
-          <StepsTable />
+          <StepsTable onRequestDelete={requestDeleteStep} />
         </Box>
       )}
 
@@ -286,7 +329,7 @@ export function EditorPage() {
       )}
 
       {/* Step editor drawer (table mode only) */}
-      {viewMode === 'table' && <StepDrawer />}
+      {viewMode === 'table' && <StepDrawer onRequestDelete={requestDeleteStep} />}
 
       {/* Save with errors confirm */}
       <Dialog
@@ -314,6 +357,57 @@ export function EditorPage() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Scenario JSON (readonly) */}
+      <Dialog open={jsonOpen} onClose={() => setJsonOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle sx={{ pr: 6 }}>
+          JSON сценария
+          <IconButton
+            aria-label="Закрыть"
+            onClick={() => setJsonOpen(false)}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: 'text.secondary',
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            value={scenarioJson}
+            fullWidth
+            multiline
+            minRows={18}
+            size="small"
+            slotProps={{
+              input: {
+                readOnly: true,
+                sx: { fontFamily: 'monospace', fontSize: '0.8rem' },
+              },
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            startIcon={<ContentCopyIcon />}
+            onClick={handleCopyJson}
+            color={copyState === 'error' ? 'error' : 'primary'}
+          >
+            {copyState === 'copied' ? 'Скопировано' : copyState === 'error' ? 'Не удалось' : 'Скопировать'}
+          </Button>
+          <Button onClick={() => setJsonOpen(false)}>Закрыть</Button>
+        </DialogActions>
+      </Dialog>
+
+      <DeleteStepDialog
+        open={deleteStepId !== null}
+        stepTitle={deleteStepTitle}
+        onClose={handleCloseDeleteStep}
+        onConfirm={handleConfirmDeleteStep}
+      />
     </Box>
   );
 }
