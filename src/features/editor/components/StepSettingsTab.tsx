@@ -19,14 +19,24 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { nanoid } from 'nanoid';
 
 import type {
-  ButtonStep, ButtonView,
-  CheckboxOption, CheckboxStep, CheckboxView,
-  CommentStep, CommentView,
-  DatetimeStep, DatetimeView,
-  ImageSource, ImageStep, ImageView,
+  ButtonStep,
+  ButtonView,
+  CheckboxOption,
+  CheckboxStep,
+  CheckboxView,
+  CommentStep,
+  CommentView,
+  DatetimeStep,
+  DatetimeView,
+  ImageSource,
+  ImageStep,
+  ImageView,
   Option,
-  RadioButtonStep, RadioButtonView,
-  SelectList, SelectStep, SelectView,
+  RadioButtonStep,
+  RadioButtonView,
+  SelectList,
+  SelectStep,
+  SelectView,
   Step,
 } from '../../../shared/types/scenario';
 import { useEditorStore } from '../store/editorStore';
@@ -47,7 +57,7 @@ function useViewSync<V extends object>(initial: V, onSync: (v: V) => void) {
       setView(next);
       if (immediate) onSync(next);
     },
-    [onSync],
+    [onSync]
   );
 
   const sync = useCallback(() => onSync(ref.current), [onSync]);
@@ -69,7 +79,7 @@ function OptionsList({
   withDefault?: boolean;
 }) {
   function addOption() {
-    const opt: CheckboxOption = { id: nanoid(6), label: '', default: false };
+    const opt: CheckboxOption = { id: nanoid(), label: '', default: false };
     onChange([...options, withDefault ? opt : { id: opt.id, label: opt.label }]);
   }
 
@@ -85,10 +95,18 @@ function OptionsList({
     <Box>
       {options.length > 0 && (
         <Box sx={{ display: 'flex', gap: 1, mb: 0.5, px: 0.5 }}>
-          <Typography variant="caption" color="text.secondary" sx={{ width: 110 }}>ID</Typography>
-          <Typography variant="caption" color="text.secondary" sx={{ flexGrow: 1 }}>Метка</Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ width: 110 }}>
+            ID
+          </Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ flexGrow: 1 }}>
+            Метка
+          </Typography>
           {withDefault && (
-            <Typography variant="caption" color="text.secondary" sx={{ width: 52, textAlign: 'center' }}>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ width: 52, textAlign: 'center' }}
+            >
               Умолч.
             </Typography>
           )}
@@ -102,14 +120,14 @@ function OptionsList({
             <TextField
               size="small"
               value={opt.id}
-              onChange={(e) => update(idx, { id: e.target.value })}
+              onChange={e => update(idx, { id: e.target.value })}
               sx={{ width: 110 }}
               slotProps={{ input: { sx: { fontFamily: 'monospace', fontSize: '0.8rem' } } }}
             />
             <TextField
               size="small"
               value={opt.label}
-              onChange={(e) => update(idx, { label: e.target.value })}
+              onChange={e => update(idx, { label: e.target.value })}
               sx={{ flexGrow: 1 }}
             />
             {withDefault && (
@@ -117,7 +135,7 @@ function OptionsList({
                 <Switch
                   size="small"
                   checked={(opt as CheckboxOption).default ?? false}
-                  onChange={(e) => update(idx, { default: e.target.checked })}
+                  onChange={e => update(idx, { default: e.target.checked })}
                 />
               </Tooltip>
             )}
@@ -148,7 +166,7 @@ function SelectListsEditor({
   onChange: (lists: SelectList[]) => void;
 }) {
   function addList() {
-    onChange([...lists, { id: nanoid(6), label: '', options: [] }]);
+    onChange([...lists, { id: nanoid(), label: '', options: [] }]);
   }
 
   function removeList(idx: number) {
@@ -175,7 +193,10 @@ function SelectListsEditor({
                 <IconButton
                   size="small"
                   color="error"
-                  onClick={(e) => { e.stopPropagation(); removeList(idx); }}
+                  onClick={e => {
+                    e.stopPropagation();
+                    removeList(idx);
+                  }}
                 >
                   <DeleteOutlinedIcon fontSize="small" />
                 </IconButton>
@@ -189,7 +210,7 @@ function SelectListsEditor({
                   label="ID списка"
                   size="small"
                   value={list.id}
-                  onChange={(e) => updateList(idx, { id: e.target.value })}
+                  onChange={e => updateList(idx, { id: e.target.value })}
                   sx={{ width: 140 }}
                   slotProps={{ input: { sx: { fontFamily: 'monospace', fontSize: '0.8rem' } } }}
                 />
@@ -197,15 +218,17 @@ function SelectListsEditor({
                   label="Название"
                   size="small"
                   value={list.label}
-                  onChange={(e) => updateList(idx, { label: e.target.value })}
+                  onChange={e => updateList(idx, { label: e.target.value })}
                   sx={{ flexGrow: 1 }}
                 />
               </Box>
               <Divider />
-              <Typography variant="caption" color="text.secondary">Варианты списка</Typography>
+              <Typography variant="caption" color="text.secondary">
+                Варианты списка
+              </Typography>
               <OptionsList
                 options={list.options}
-                onChange={(opts) => updateList(idx, { options: opts as Option[] })}
+                onChange={opts => updateList(idx, { options: opts as Option[] })}
               />
             </Stack>
           </AccordionDetails>
@@ -229,7 +252,7 @@ function ButtonSettings({ step, onSync }: { step: ButtonStep; onSync: (v: Button
         size="small"
         fullWidth
         value={view.label}
-        onChange={(e) => patch({ label: e.target.value })}
+        onChange={e => patch({ label: e.target.value })}
         onBlur={sync}
       />
     </Stack>
@@ -238,7 +261,13 @@ function ButtonSettings({ step, onSync }: { step: ButtonStep; onSync: (v: Button
 
 // ─── Comment ──────────────────────────────────────────────────────────────────
 
-function CommentSettings({ step, onSync }: { step: CommentStep; onSync: (v: CommentView) => void }) {
+function CommentSettings({
+  step,
+  onSync,
+}: {
+  step: CommentStep;
+  onSync: (v: CommentView) => void;
+}) {
   const { view, patch, sync } = useViewSync(step.view, onSync);
   return (
     <Stack spacing={2.5} sx={{ p: 2.5 }}>
@@ -247,7 +276,7 @@ function CommentSettings({ step, onSync }: { step: CommentStep; onSync: (v: Comm
         size="small"
         fullWidth
         value={view.label}
-        onChange={(e) => patch({ label: e.target.value })}
+        onChange={e => patch({ label: e.target.value })}
         onBlur={sync}
       />
       <TextField
@@ -257,7 +286,7 @@ function CommentSettings({ step, onSync }: { step: CommentStep; onSync: (v: Comm
         multiline
         rows={2}
         value={view.default}
-        onChange={(e) => patch({ default: e.target.value })}
+        onChange={e => patch({ default: e.target.value })}
         onBlur={sync}
       />
       <Box sx={{ display: 'flex', gap: 2 }}>
@@ -266,7 +295,7 @@ function CommentSettings({ step, onSync }: { step: CommentStep; onSync: (v: Comm
           size="small"
           type="number"
           value={view.minLength}
-          onChange={(e) => patch({ minLength: Number(e.target.value) }, true)}
+          onChange={e => patch({ minLength: Number(e.target.value) }, true)}
           sx={{ width: 120 }}
           slotProps={{ input: { inputProps: { min: 0 } } }}
         />
@@ -275,7 +304,7 @@ function CommentSettings({ step, onSync }: { step: CommentStep; onSync: (v: Comm
           size="small"
           type="number"
           value={view.maxLength}
-          onChange={(e) => patch({ maxLength: Number(e.target.value) }, true)}
+          onChange={e => patch({ maxLength: Number(e.target.value) }, true)}
           sx={{ width: 120 }}
           slotProps={{ input: { inputProps: { min: 0 } } }}
         />
@@ -287,7 +316,7 @@ function CommentSettings({ step, onSync }: { step: CommentStep; onSync: (v: Comm
             <Switch
               size="small"
               checked={view.required}
-              onChange={(e) => patch({ required: e.target.checked }, true)}
+              onChange={e => patch({ required: e.target.checked }, true)}
             />
           }
         />
@@ -297,7 +326,7 @@ function CommentSettings({ step, onSync }: { step: CommentStep; onSync: (v: Comm
             <Switch
               size="small"
               checked={view.readonly}
-              onChange={(e) => patch({ readonly: e.target.checked }, true)}
+              onChange={e => patch({ readonly: e.target.checked }, true)}
             />
           }
         />
@@ -308,7 +337,13 @@ function CommentSettings({ step, onSync }: { step: CommentStep; onSync: (v: Comm
 
 // ─── Datetime ─────────────────────────────────────────────────────────────────
 
-function DatetimeSettings({ step, onSync }: { step: DatetimeStep; onSync: (v: DatetimeView) => void }) {
+function DatetimeSettings({
+  step,
+  onSync,
+}: {
+  step: DatetimeStep;
+  onSync: (v: DatetimeView) => void;
+}) {
   const { view, patch, sync } = useViewSync(step.view, onSync);
   return (
     <Stack spacing={2.5} sx={{ p: 2.5 }}>
@@ -317,7 +352,7 @@ function DatetimeSettings({ step, onSync }: { step: DatetimeStep; onSync: (v: Da
         size="small"
         fullWidth
         value={view.label}
-        onChange={(e) => patch({ label: e.target.value })}
+        onChange={e => patch({ label: e.target.value })}
         onBlur={sync}
       />
       <FormControlLabel
@@ -326,7 +361,7 @@ function DatetimeSettings({ step, onSync }: { step: DatetimeStep; onSync: (v: Da
           <Switch
             size="small"
             checked={view.required}
-            onChange={(e) => patch({ required: e.target.checked }, true)}
+            onChange={e => patch({ required: e.target.checked }, true)}
           />
         }
       />
@@ -337,7 +372,7 @@ function DatetimeSettings({ step, onSync }: { step: DatetimeStep; onSync: (v: Da
         value={view.min ?? ''}
         placeholder="Не ограничено"
         helperText="ISO 8601: 2024-01-01T00:00"
-        onChange={(e) => patch({ min: e.target.value || null })}
+        onChange={e => patch({ min: e.target.value || null })}
         onBlur={sync}
       />
       <TextField
@@ -347,7 +382,7 @@ function DatetimeSettings({ step, onSync }: { step: DatetimeStep; onSync: (v: Da
         value={view.max ?? ''}
         placeholder="Не ограничено"
         helperText="ISO 8601: 2099-12-31T23:59"
-        onChange={(e) => patch({ max: e.target.value || null })}
+        onChange={e => patch({ max: e.target.value || null })}
         onBlur={sync}
       />
     </Stack>
@@ -372,7 +407,7 @@ function ImageSettings({ step, onSync }: { step: ImageStep; onSync: (v: ImageVie
         size="small"
         fullWidth
         value={view.label}
-        onChange={(e) => patch({ label: e.target.value })}
+        onChange={e => patch({ label: e.target.value })}
         onBlur={sync}
       />
       <TextField
@@ -381,10 +416,12 @@ function ImageSettings({ step, onSync }: { step: ImageStep; onSync: (v: ImageVie
         size="small"
         fullWidth
         value={view.source}
-        onChange={(e) => patch({ source: e.target.value as ImageSource }, true)}
+        onChange={e => patch({ source: e.target.value as ImageSource }, true)}
       >
-        {IMAGE_SOURCES.map((s) => (
-          <MenuItem key={s.value} value={s.value}>{s.label}</MenuItem>
+        {IMAGE_SOURCES.map(s => (
+          <MenuItem key={s.value} value={s.value}>
+            {s.label}
+          </MenuItem>
         ))}
       </TextField>
       {view.source === 'fixed' && (
@@ -394,7 +431,7 @@ function ImageSettings({ step, onSync }: { step: ImageStep; onSync: (v: ImageVie
           fullWidth
           value={view.image ?? ''}
           placeholder="https://..."
-          onChange={(e) => patch({ image: e.target.value || null })}
+          onChange={e => patch({ image: e.target.value || null })}
           onBlur={sync}
         />
       )}
@@ -404,7 +441,13 @@ function ImageSettings({ step, onSync }: { step: ImageStep; onSync: (v: ImageVie
 
 // ─── RadioButton ──────────────────────────────────────────────────────────────
 
-function RadioButtonSettings({ step, onSync }: { step: RadioButtonStep; onSync: (v: RadioButtonView) => void }) {
+function RadioButtonSettings({
+  step,
+  onSync,
+}: {
+  step: RadioButtonStep;
+  onSync: (v: RadioButtonView) => void;
+}) {
   const { view, patch, sync } = useViewSync(step.view, onSync);
   return (
     <Stack spacing={2.5} sx={{ p: 2.5 }}>
@@ -413,7 +456,7 @@ function RadioButtonSettings({ step, onSync }: { step: RadioButtonStep; onSync: 
         size="small"
         fullWidth
         value={view.label}
-        onChange={(e) => patch({ label: e.target.value })}
+        onChange={e => patch({ label: e.target.value })}
         onBlur={sync}
       />
       <FormControlLabel
@@ -422,7 +465,7 @@ function RadioButtonSettings({ step, onSync }: { step: RadioButtonStep; onSync: 
           <Switch
             size="small"
             checked={view.required}
-            onChange={(e) => patch({ required: e.target.checked }, true)}
+            onChange={e => patch({ required: e.target.checked }, true)}
           />
         }
       />
@@ -432,18 +475,22 @@ function RadioButtonSettings({ step, onSync }: { step: RadioButtonStep; onSync: 
         size="small"
         fullWidth
         value={view.default ?? ''}
-        onChange={(e) => patch({ default: e.target.value || null }, true)}
+        onChange={e => patch({ default: e.target.value || null }, true)}
       >
-        <MenuItem value=""><em>Не выбрано</em></MenuItem>
-        {view.options.map((opt) => (
-          <MenuItem key={opt.id} value={opt.id}>{opt.label || opt.id}</MenuItem>
+        <MenuItem value="">
+          <em>Не выбрано</em>
+        </MenuItem>
+        {view.options.map(opt => (
+          <MenuItem key={opt.id} value={opt.id}>
+            {opt.label || opt.id}
+          </MenuItem>
         ))}
       </TextField>
       <Divider />
       <Typography variant="subtitle2">Варианты</Typography>
       <OptionsList
         options={view.options}
-        onChange={(opts) => patch({ options: opts as Option[] }, true)}
+        onChange={opts => patch({ options: opts as Option[] }, true)}
       />
     </Stack>
   );
@@ -451,7 +498,13 @@ function RadioButtonSettings({ step, onSync }: { step: RadioButtonStep; onSync: 
 
 // ─── Checkbox ─────────────────────────────────────────────────────────────────
 
-function CheckboxSettings({ step, onSync }: { step: CheckboxStep; onSync: (v: CheckboxView) => void }) {
+function CheckboxSettings({
+  step,
+  onSync,
+}: {
+  step: CheckboxStep;
+  onSync: (v: CheckboxView) => void;
+}) {
   const { view, patch, sync } = useViewSync(step.view, onSync);
   return (
     <Stack spacing={2.5} sx={{ p: 2.5 }}>
@@ -460,7 +513,7 @@ function CheckboxSettings({ step, onSync }: { step: CheckboxStep; onSync: (v: Ch
         size="small"
         fullWidth
         value={view.label}
-        onChange={(e) => patch({ label: e.target.value })}
+        onChange={e => patch({ label: e.target.value })}
         onBlur={sync}
       />
       <Box sx={{ display: 'flex', gap: 2 }}>
@@ -469,7 +522,7 @@ function CheckboxSettings({ step, onSync }: { step: CheckboxStep; onSync: (v: Ch
           size="small"
           type="number"
           value={view.minSelected}
-          onChange={(e) => patch({ minSelected: Number(e.target.value) }, true)}
+          onChange={e => patch({ minSelected: Number(e.target.value) }, true)}
           sx={{ width: 140 }}
           slotProps={{ input: { inputProps: { min: 0 } } }}
         />
@@ -480,7 +533,7 @@ function CheckboxSettings({ step, onSync }: { step: CheckboxStep; onSync: (v: Ch
           value={view.maxSelected ?? ''}
           placeholder="∞"
           helperText="Пусто = без ограничений"
-          onChange={(e) =>
+          onChange={e =>
             patch({ maxSelected: e.target.value === '' ? null : Number(e.target.value) }, true)
           }
           onBlur={sync}
@@ -492,7 +545,7 @@ function CheckboxSettings({ step, onSync }: { step: CheckboxStep; onSync: (v: Ch
       <Typography variant="subtitle2">Варианты</Typography>
       <OptionsList
         options={view.options}
-        onChange={(opts) => patch({ options: opts as CheckboxOption[] }, true)}
+        onChange={opts => patch({ options: opts as CheckboxOption[] }, true)}
         withDefault
       />
     </Stack>
@@ -511,16 +564,13 @@ function SelectSettings({ step, onSync }: { step: SelectStep; onSync: (v: Select
           <Switch
             size="small"
             checked={view.required}
-            onChange={(e) => patch({ required: e.target.checked }, true)}
+            onChange={e => patch({ required: e.target.checked }, true)}
           />
         }
       />
       <Divider />
       <Typography variant="subtitle2">Списки вариантов</Typography>
-      <SelectListsEditor
-        lists={view.lists}
-        onChange={(lists) => patch({ lists }, true)}
-      />
+      <SelectListsEditor lists={view.lists} onChange={lists => patch({ lists }, true)} />
     </Stack>
   );
 }
@@ -532,10 +582,10 @@ function SelectSettings({ step, onSync }: { step: SelectStep; onSync: (v: Select
  * Mounted fresh per step via key={step.id} in StepDrawer.
  */
 export function StepSettingsTab({ step }: { step: Step }) {
-  const updateStepView = useEditorStore((s) => s.updateStepView);
+  const updateStepView = useEditorStore(s => s.updateStepView);
   const onSync = useCallback(
     (view: Step['view']) => updateStepView(step.id, view),
-    [step.id, updateStepView],
+    [step.id, updateStepView]
   );
 
   switch (step.type) {

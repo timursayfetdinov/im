@@ -48,7 +48,12 @@ export function createDefaultStep(type: StepType): Step {
       return {
         ...base,
         type,
-        view: { label: 'Дата и время', required: false, min: null, max: null } satisfies DatetimeView,
+        view: {
+          label: 'Дата и время',
+          required: false,
+          min: null,
+          max: null,
+        } satisfies DatetimeView,
       };
     case 'Image':
       return {
@@ -65,8 +70,8 @@ export function createDefaultStep(type: StepType): Step {
           required: true,
           default: null,
           options: [
-            { id: nanoid(6), label: 'Вариант 1' },
-            { id: nanoid(6), label: 'Вариант 2' },
+            { id: nanoid(), label: 'Вариант 1' },
+            { id: nanoid(), label: 'Вариант 2' },
           ],
         } satisfies RadioButtonView,
       };
@@ -79,8 +84,8 @@ export function createDefaultStep(type: StepType): Step {
           minSelected: 0,
           maxSelected: null,
           options: [
-            { id: nanoid(6), label: 'Вариант 1', default: false },
-            { id: nanoid(6), label: 'Вариант 2', default: false },
+            { id: nanoid(), label: 'Вариант 1', default: false },
+            { id: nanoid(), label: 'Вариант 2', default: false },
           ],
         } satisfies CheckboxView,
       };
@@ -95,8 +100,8 @@ export function createDefaultStep(type: StepType): Step {
               id: 'list_1',
               label: 'Список 1',
               options: [
-                { id: nanoid(6), label: 'Опция 1' },
-                { id: nanoid(6), label: 'Опция 2' },
+                { id: nanoid(), label: 'Опция 1' },
+                { id: nanoid(), label: 'Опция 2' },
               ],
             },
           ],

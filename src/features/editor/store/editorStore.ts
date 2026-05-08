@@ -56,23 +56,23 @@ function revalidate(state: EditorState) {
 }
 
 export const useEditorStore = create<EditorState & EditorActions>()(
-  immer((set) => ({
+  immer(set => ({
     scenario: null,
     validationErrors: [],
     isDirty: false,
     openStepId: null,
     drawerTab: 0,
 
-    loadScenario: (scenario) =>
-      set((s) => {
+    loadScenario: scenario =>
+      set(s => {
         s.scenario = scenario;
         s.isDirty = false;
         s.openStepId = null;
         revalidate(s);
       }),
 
-    updateMeta: (patch) =>
-      set((s) => {
+    updateMeta: patch =>
+      set(s => {
         if (!s.scenario) return;
         Object.assign(s.scenario.scenario, patch);
         s.isDirty = true;
@@ -80,18 +80,18 @@ export const useEditorStore = create<EditorState & EditorActions>()(
       }),
 
     clearScenario: () =>
-      set((s) => {
+      set(s => {
         s.scenario = null;
         s.validationErrors = [];
         s.isDirty = false;
         s.openStepId = null;
       }),
 
-    addStep: (type) =>
-      set((s) => {
+    addStep: type =>
+      set(s => {
         if (!s.scenario) return;
         const step = createDefaultStep(type);
-        step.id = nanoid(8);
+        step.id = nanoid();
         s.scenario.steps.push(step as Step);
         s.openStepId = step.id;
         s.drawerTab = 0;
@@ -100,9 +100,9 @@ export const useEditorStore = create<EditorState & EditorActions>()(
       }),
 
     updateStep: (id, patch) =>
-      set((s) => {
+      set(s => {
         if (!s.scenario) return;
-        const step = s.scenario.steps.find((st) => st.id === id);
+        const step = s.scenario.steps.find(st => st.id === id);
         if (!step) return;
         Object.assign(step, patch);
         // Keep openStepId in sync when the step's own id changes
@@ -114,19 +114,19 @@ export const useEditorStore = create<EditorState & EditorActions>()(
       }),
 
     updateStepView: (id, view) =>
-      set((s) => {
+      set(s => {
         if (!s.scenario) return;
-        const step = s.scenario.steps.find((st) => st.id === id);
+        const step = s.scenario.steps.find(st => st.id === id);
         if (!step) return;
         (step as Step).view = view as Step['view'];
         s.isDirty = true;
         revalidate(s);
       }),
 
-    removeStep: (id) =>
-      set((s) => {
+    removeStep: id =>
+      set(s => {
         if (!s.scenario) return;
-        s.scenario.steps = s.scenario.steps.filter((st) => st.id !== id);
+        s.scenario.steps = s.scenario.steps.filter(st => st.id !== id);
         // Nullify any goto references to the removed step
         for (const st of s.scenario.steps) {
           if (st.transitions.default.goto === id) {
@@ -141,15 +141,15 @@ export const useEditorStore = create<EditorState & EditorActions>()(
         revalidate(s);
       }),
 
-    duplicateStep: (id) =>
-      set((s) => {
+    duplicateStep: id =>
+      set(s => {
         if (!s.scenario) return;
-        const original = s.scenario.steps.find((st) => st.id === id);
+        const original = s.scenario.steps.find(st => st.id === id);
         if (!original) return;
         const clone = JSON.parse(JSON.stringify(original)) as Step;
-        clone.id = nanoid(8);
+        clone.id = nanoid();
         clone.title = `${clone.title} (копия)`;
-        const idx = s.scenario.steps.findIndex((st) => st.id === id);
+        const idx = s.scenario.steps.findIndex(st => st.id === id);
         s.scenario.steps.splice(idx + 1, 0, clone);
         s.openStepId = clone.id;
         s.drawerTab = 0;
@@ -158,7 +158,7 @@ export const useEditorStore = create<EditorState & EditorActions>()(
       }),
 
     reorderSteps: (fromIndex, toIndex) =>
-      set((s) => {
+      set(s => {
         if (!s.scenario) return;
         const steps = s.scenario.steps;
         const [moved] = steps.splice(fromIndex, 1);
@@ -167,19 +167,19 @@ export const useEditorStore = create<EditorState & EditorActions>()(
       }),
 
     updateDefault: (stepId, patch) =>
-      set((s) => {
+      set(s => {
         if (!s.scenario) return;
-        const step = s.scenario.steps.find((st) => st.id === stepId);
+        const step = s.scenario.steps.find(st => st.id === stepId);
         if (!step) return;
         Object.assign(step.transitions.default, patch);
         s.isDirty = true;
         revalidate(s);
       }),
 
-    addRule: (stepId) =>
-      set((s) => {
+    addRule: stepId =>
+      set(s => {
         if (!s.scenario) return;
-        const step = s.scenario.steps.find((st) => st.id === stepId);
+        const step = s.scenario.steps.find(st => st.id === stepId);
         if (!step) return;
         if (!step.transitions.rules) step.transitions.rules = [];
         step.transitions.rules.push({ condition: {}, goto: null, macro: null });
@@ -188,9 +188,9 @@ export const useEditorStore = create<EditorState & EditorActions>()(
       }),
 
     updateRule: (stepId, ruleIndex, patch) =>
-      set((s) => {
+      set(s => {
         if (!s.scenario) return;
-        const step = s.scenario.steps.find((st) => st.id === stepId);
+        const step = s.scenario.steps.find(st => st.id === stepId);
         if (!step?.transitions.rules) return;
         Object.assign(step.transitions.rules[ruleIndex], patch);
         s.isDirty = true;
@@ -198,9 +198,9 @@ export const useEditorStore = create<EditorState & EditorActions>()(
       }),
 
     removeRule: (stepId, ruleIndex) =>
-      set((s) => {
+      set(s => {
         if (!s.scenario) return;
-        const step = s.scenario.steps.find((st) => st.id === stepId);
+        const step = s.scenario.steps.find(st => st.id === stepId);
         if (!step?.transitions.rules) return;
         step.transitions.rules.splice(ruleIndex, 1);
         s.isDirty = true;
@@ -208,9 +208,9 @@ export const useEditorStore = create<EditorState & EditorActions>()(
       }),
 
     reorderRules: (stepId, fromIndex, toIndex) =>
-      set((s) => {
+      set(s => {
         if (!s.scenario) return;
-        const step = s.scenario.steps.find((st) => st.id === stepId);
+        const step = s.scenario.steps.find(st => st.id === stepId);
         if (!step?.transitions.rules) return;
         const [moved] = step.transitions.rules.splice(fromIndex, 1);
         step.transitions.rules.splice(toIndex, 0, moved);
@@ -218,18 +218,18 @@ export const useEditorStore = create<EditorState & EditorActions>()(
       }),
 
     openStep: (id, tab = 0) =>
-      set((s) => {
+      set(s => {
         s.openStepId = id;
         s.drawerTab = tab;
       }),
 
     closeDrawer: () =>
-      set((s) => {
+      set(s => {
         s.openStepId = null;
       }),
 
-    setDrawerTab: (tab) =>
-      set((s) => {
+    setDrawerTab: tab =>
+      set(s => {
         s.drawerTab = tab;
       }),
   }))

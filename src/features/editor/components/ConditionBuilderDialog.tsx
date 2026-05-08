@@ -43,7 +43,7 @@ type RowOperator = '==' | '!=' | 'in' | 'not_in';
 
 type BuilderRow = {
   key: string;
-  variable: string;        // "value" | "selected" | list_id
+  variable: string; // "value" | "selected" | list_id
   operator: RowOperator;
   valueId: string | string[]; // string for ==, !=, Checkbox in/not_in; string[] for Select in/not_in
 };
@@ -66,7 +66,7 @@ function getVariableOptions(step: Step): VarOption[] {
   if (step.type === 'RadioButton') return [{ value: 'value', label: 'Выбранное значение' }];
   if (step.type === 'Checkbox') return [{ value: 'selected', label: 'Выбранные элементы' }];
   if (step.type === 'Select') {
-    return step.view.lists.map((l) => ({ value: l.id, label: l.label || l.id }));
+    return step.view.lists.map(l => ({ value: l.id, label: l.label || l.id }));
   }
   return [];
 }
@@ -96,7 +96,7 @@ function getValueOptions(step: Step, variable: string): ValOption[] {
   if (step.type === 'RadioButton') return step.view.options;
   if (step.type === 'Checkbox') return step.view.options;
   if (step.type === 'Select') {
-    return step.view.lists.find((l) => l.id === variable)?.options ?? [];
+    return step.view.lists.find(l => l.id === variable)?.options ?? [];
   }
   return [];
 }
@@ -117,15 +117,19 @@ function defaultOperator(step: Step): RowOperator {
 function rowToLogic(row: BuilderRow): JsonLogicCondition {
   if (Array.isArray(row.valueId)) {
     // Select ∈/∉: { "in": [{"var": list_id}, [opt1, opt2]] }
-    if (row.operator === 'in')     return { in: [{ var: row.variable }, row.valueId] };
+    if (row.operator === 'in') return { in: [{ var: row.variable }, row.valueId] };
     if (row.operator === 'not_in') return { '!': { in: [{ var: row.variable }, row.valueId] } };
   }
   const v = row.valueId as string;
   switch (row.operator) {
-    case '==':     return { '==': [{ var: row.variable }, v] };
-    case '!=':     return { '!=': [{ var: row.variable }, v] };
-    case 'in':     return { in: [v, { var: row.variable }] };          // Checkbox: str first
-    case 'not_in': return { '!': { in: [v, { var: row.variable }] } }; // Checkbox
+    case '==':
+      return { '==': [{ var: row.variable }, v] };
+    case '!=':
+      return { '!=': [{ var: row.variable }, v] };
+    case 'in':
+      return { in: [v, { var: row.variable }] }; // Checkbox: str first
+    case 'not_in':
+      return { '!': { in: [v, { var: row.variable }] } }; // Checkbox
   }
 }
 
@@ -141,40 +145,74 @@ function tryParseRow(cond: JsonLogicCondition): BuilderRow | null {
   if (k.length !== 1) return null;
   if ('==' in cond || '!=' in cond) {
     const op = k[0] as '==' | '!=';
-    const [left, right] = (cond[op] as [unknown, unknown]);
+    const [left, right] = cond[op] as [unknown, unknown];
     if (left && typeof left === 'object' && 'var' in left && typeof right === 'string') {
-      return { key: nanoid(4), variable: (left as { var: string }).var, operator: op, valueId: right };
+      return {
+        key: nanoid(),
+        variable: (left as { var: string }).var,
+        operator: op,
+        valueId: right,
+      };
     }
   }
   if ('in' in cond) {
-    const [a, b] = (cond['in'] as [unknown, unknown]);
+    const [a, b] = cond['in'] as [unknown, unknown];
     // Checkbox pattern: [string, {var}]
     if (typeof a === 'string' && b && typeof b === 'object' && 'var' in b) {
-      return { key: nanoid(4), variable: (b as { var: string }).var, operator: 'in', valueId: a };
+      return { key: nanoid(), variable: (b as { var: string }).var, operator: 'in', valueId: a };
     }
     // Select pattern: [{var}, string[]]
-    if (a && typeof a === 'object' && 'var' in a && Array.isArray(b) && b.every((x) => typeof x === 'string')) {
-      return { key: nanoid(4), variable: (a as { var: string }).var, operator: 'in', valueId: b as string[] };
+    if (
+      a &&
+      typeof a === 'object' &&
+      'var' in a &&
+      Array.isArray(b) &&
+      b.every(x => typeof x === 'string')
+    ) {
+      return {
+        key: nanoid(),
+        variable: (a as { var: string }).var,
+        operator: 'in',
+        valueId: b as string[],
+      };
     }
   }
   if ('!' in cond) {
     const inner = cond['!'] as JsonLogicCondition;
     if (inner && 'in' in inner) {
-      const [a, b] = (inner['in'] as [unknown, unknown]);
+      const [a, b] = inner['in'] as [unknown, unknown];
       // Checkbox pattern
       if (typeof a === 'string' && b && typeof b === 'object' && 'var' in b) {
-        return { key: nanoid(4), variable: (b as { var: string }).var, operator: 'not_in', valueId: a };
+        return {
+          key: nanoid(),
+          variable: (b as { var: string }).var,
+          operator: 'not_in',
+          valueId: a,
+        };
       }
       // Select pattern
-      if (a && typeof a === 'object' && 'var' in a && Array.isArray(b) && b.every((x) => typeof x === 'string')) {
-        return { key: nanoid(4), variable: (a as { var: string }).var, operator: 'not_in', valueId: b as string[] };
+      if (
+        a &&
+        typeof a === 'object' &&
+        'var' in a &&
+        Array.isArray(b) &&
+        b.every(x => typeof x === 'string')
+      ) {
+        return {
+          key: nanoid(),
+          variable: (a as { var: string }).var,
+          operator: 'not_in',
+          valueId: b as string[],
+        };
       }
     }
   }
   return null;
 }
 
-function tryParseRows(condition: JsonLogicCondition): { rows: BuilderRow[]; combinator: Combinator } | null {
+function tryParseRows(
+  condition: JsonLogicCondition
+): { rows: BuilderRow[]; combinator: Combinator } | null {
   if (Object.keys(condition).length === 0) return { rows: [], combinator: 'and' };
   const single = tryParseRow(condition);
   if (single) return { rows: [single], combinator: 'and' };
@@ -215,11 +253,20 @@ function VisualBuilder({
   function addRow() {
     const variable = defaultVariable(step);
     const operator = defaultOperator(step);
-    onChange([...rows, { key: nanoid(4), variable, operator, valueId: makeDefaultValueId(variable, operator) }], combinator);
+    onChange(
+      [
+        ...rows,
+        { key: nanoid(), variable, operator, valueId: makeDefaultValueId(variable, operator) },
+      ],
+      combinator
+    );
   }
 
   function removeRow(idx: number) {
-    onChange(rows.filter((_, i) => i !== idx), combinator);
+    onChange(
+      rows.filter((_, i) => i !== idx),
+      combinator
+    );
   }
 
   function updateRow(idx: number, patch: Partial<BuilderRow>) {
@@ -250,12 +297,16 @@ function VisualBuilder({
     <Stack spacing={2}>
       {rows.length > 1 && (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Typography variant="caption" color="text.secondary">Объединить условия:</Typography>
+          <Typography variant="caption" color="text.secondary">
+            Объединить условия:
+          </Typography>
           <ToggleButtonGroup
             exclusive
             size="small"
             value={combinator}
-            onChange={(_, v) => { if (v) onChange(rows, v as Combinator); }}
+            onChange={(_, v) => {
+              if (v) onChange(rows, v as Combinator);
+            }}
           >
             <ToggleButton value="and">И (AND)</ToggleButton>
             <ToggleButton value="or">ИЛИ (OR)</ToggleButton>
@@ -272,10 +323,14 @@ function VisualBuilder({
               size="small"
               label="Поле"
               value={row.variable}
-              onChange={(e) => updateRow(idx, { variable: e.target.value })}
+              onChange={e => updateRow(idx, { variable: e.target.value })}
               sx={{ minWidth: 130 }}
             >
-              {varOptions.map((o) => <MenuItem key={o.value} value={o.value}>{o.label}</MenuItem>)}
+              {varOptions.map(o => (
+                <MenuItem key={o.value} value={o.value}>
+                  {o.label}
+                </MenuItem>
+              ))}
             </TextField>
           )}
 
@@ -285,10 +340,14 @@ function VisualBuilder({
             size="small"
             label="Условие"
             value={row.operator}
-            onChange={(e) => updateRow(idx, { operator: e.target.value as RowOperator })}
+            onChange={e => updateRow(idx, { operator: e.target.value as RowOperator })}
             sx={{ minWidth: 120 }}
           >
-            {operatorOptions.map((o) => <MenuItem key={o.value} value={o.value}>{o.label}</MenuItem>)}
+            {operatorOptions.map(o => (
+              <MenuItem key={o.value} value={o.value}>
+                {o.label}
+              </MenuItem>
+            ))}
           </TextField>
 
           {/* Value — multi-select for Select ∈/∉, single otherwise */}
@@ -297,7 +356,7 @@ function VisualBuilder({
             size="small"
             label={isSelectMulti(step, row.operator) ? 'Значения' : 'Значение'}
             value={row.valueId}
-            onChange={(e) =>
+            onChange={e =>
               updateRow(idx, {
                 valueId: isSelectMulti(step, row.operator)
                   ? (e.target.value as unknown as string[])
@@ -309,11 +368,12 @@ function VisualBuilder({
                 ? {
                     select: {
                       multiple: true,
-                      renderValue: (selected) =>
+                      renderValue: selected =>
                         (selected as string[])
                           .map(
-                            (id) =>
-                              getValueOptions(step, row.variable).find((o) => o.id === id)?.label ?? id,
+                            id =>
+                              getValueOptions(step, row.variable).find(o => o.id === id)?.label ??
+                              id
                           )
                           .join(', '),
                     },
@@ -322,11 +382,15 @@ function VisualBuilder({
             }
             sx={{ flexGrow: 1 }}
           >
-            {getValueOptions(step, row.variable).map((o) => (
-              <MenuItem key={o.id} value={o.id}>{o.label || o.id}</MenuItem>
+            {getValueOptions(step, row.variable).map(o => (
+              <MenuItem key={o.id} value={o.id}>
+                {o.label || o.id}
+              </MenuItem>
             ))}
             {getValueOptions(step, row.variable).length === 0 && (
-              <MenuItem disabled value="">— нет вариантов —</MenuItem>
+              <MenuItem disabled value="">
+                — нет вариантов —
+              </MenuItem>
             )}
           </TextField>
 
@@ -338,7 +402,12 @@ function VisualBuilder({
         </Box>
       ))}
 
-      <Button startIcon={<AddIcon />} size="small" onClick={addRow} sx={{ alignSelf: 'flex-start' }}>
+      <Button
+        startIcon={<AddIcon />}
+        size="small"
+        onClick={addRow}
+        sx={{ alignSelf: 'flex-start' }}
+      >
         Добавить условие
       </Button>
     </Stack>
@@ -360,7 +429,9 @@ function JsonEditor({
     <Stack spacing={1.5}>
       <Typography variant="caption" color="text.secondary">
         JSONLogic-выражение. Документация:{' '}
-        <a href="https://jsonlogic.com" target="_blank" rel="noreferrer">jsonlogic.com</a>
+        <a href="https://jsonlogic.com" target="_blank" rel="noreferrer">
+          jsonlogic.com
+        </a>
       </Typography>
       <TextField
         multiline
@@ -368,7 +439,7 @@ function JsonEditor({
         fullWidth
         size="small"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={e => onChange(e.target.value)}
         error={!!error}
         helperText={error || ' '}
         slotProps={{ input: { sx: { fontFamily: 'monospace', fontSize: '0.8rem' } } }}
@@ -447,7 +518,11 @@ export function ConditionBuilderDialog({ open, step, condition, onClose, onSave 
       <DialogTitle>Условие перехода</DialogTitle>
 
       {hasVisual && (
-        <Tabs value={tab} onChange={handleTabChange} sx={{ px: 3, borderBottom: 1, borderColor: 'divider' }}>
+        <Tabs
+          value={tab}
+          onChange={handleTabChange}
+          sx={{ px: 3, borderBottom: 1, borderColor: 'divider' }}
+        >
           <Tab label="Конструктор" value={0} />
           <Tab label="JSON" value={1} />
         </Tabs>
@@ -458,36 +533,57 @@ export function ConditionBuilderDialog({ open, step, condition, onClose, onSave 
           <>
             {parseFailed && (
               <Typography variant="caption" color="warning.main" sx={{ display: 'block', mb: 2 }}>
-                Существующее условие слишком сложное для визуального отображения. Конструктор начат с нуля — перейдите во вкладку JSON для ручного редактирования.
+                Существующее условие слишком сложное для визуального отображения. Конструктор начат
+                с нуля — перейдите во вкладку JSON для ручного редактирования.
               </Typography>
             )}
             <VisualBuilder
               step={step}
               rows={rows}
               combinator={combinator}
-              onChange={(r, c) => { setRows(r); setCombinator(c); }}
+              onChange={(r, c) => {
+                setRows(r);
+                setCombinator(c);
+              }}
             />
           </>
         )}
 
         {tab === 1 && (
-          <JsonEditor value={jsonText} onChange={(v) => { setJsonText(v); setJsonError(''); }} error={jsonError} />
+          <JsonEditor
+            value={jsonText}
+            onChange={v => {
+              setJsonText(v);
+              setJsonError('');
+            }}
+            error={jsonError}
+          />
         )}
 
         {!hasVisual && (
           <>
             <Divider sx={{ mb: 2 }} />
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-              Визуальный конструктор доступен только для шагов с вариантами ответа (RadioButton, Checkbox, Select).
+              Визуальный конструктор доступен только для шагов с вариантами ответа (RadioButton,
+              Checkbox, Select).
             </Typography>
-            <JsonEditor value={jsonText} onChange={(v) => { setJsonText(v); setJsonError(''); }} error={jsonError} />
+            <JsonEditor
+              value={jsonText}
+              onChange={v => {
+                setJsonText(v);
+                setJsonError('');
+              }}
+              error={jsonError}
+            />
           </>
         )}
       </DialogContent>
 
       <DialogActions>
         <Button onClick={onClose}>Отмена</Button>
-        <Button variant="contained" onClick={handleSave}>Применить</Button>
+        <Button variant="contained" onClick={handleSave}>
+          Применить
+        </Button>
       </DialogActions>
     </Dialog>
   );
