@@ -9,17 +9,17 @@ import CloseIcon from '@mui/icons-material/Close';
 
 type Props = {
   open: boolean;
-  scenarioName: string;
-  loading: boolean;
+  stepTitle: string;
+  loading?: boolean;
   onClose: () => void;
   onConfirm: () => void;
 };
 
-export function DeleteScenarioDialog({ open, scenarioName, loading, onClose, onConfirm }: Props) {
+export function DeleteStepDialog({ open, stepTitle, loading = false, onClose, onConfirm }: Props) {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
       <DialogTitle sx={{ pr: 6 }}>
-        Удалить сценарий?
+        Удалить шаг?
         <IconButton
           aria-label="Закрыть"
           onClick={onClose}
@@ -35,7 +35,7 @@ export function DeleteScenarioDialog({ open, scenarioName, loading, onClose, onC
       </DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Сценарий <strong>«{scenarioName}»</strong> будет удалён без возможности восстановления.
+          Шаг <strong>«{stepTitle || 'Без названия'}»</strong> будет удалён без возможности восстановления.
         </DialogContentText>
       </DialogContent>
       <DialogActions>
@@ -47,3 +47,4 @@ export function DeleteScenarioDialog({ open, scenarioName, loading, onClose, onC
     </Dialog>
   );
 }
+
