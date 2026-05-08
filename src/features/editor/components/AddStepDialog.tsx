@@ -6,7 +6,9 @@ import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Grid';
+import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
+import CloseIcon from '@mui/icons-material/Close';
 import { STEP_TYPES } from '../config/stepMeta';
 import type { StepType } from '../../../shared/types/scenario';
 
@@ -19,7 +21,21 @@ type Props = {
 export function AddStepDialog({ open, onClose, onSelect }: Props) {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>Выберите тип шага</DialogTitle>
+      <DialogTitle sx={{ pr: 6 }}>
+        Выберите тип шага
+        <IconButton
+          aria-label="Закрыть"
+          onClick={onClose}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: 'text.secondary',
+          }}
+        >
+          <CloseIcon fontSize="small" />
+        </IconButton>
+      </DialogTitle>
       <DialogContent sx={{ pb: 3 }}>
         <Grid container spacing={2}>
           {STEP_TYPES.map(({ type, label, description, color, Icon }) => (

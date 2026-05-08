@@ -4,8 +4,10 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
+import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
+import CloseIcon from '@mui/icons-material/Close';
 
 type Props = {
   open: boolean;
@@ -33,7 +35,21 @@ export function CreateScenarioDialog({ open, loading, onClose, onSubmit }: Props
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Новый сценарий</DialogTitle>
+      <DialogTitle sx={{ pr: 6 }}>
+        Новый сценарий
+        <IconButton
+          aria-label="Закрыть"
+          onClick={handleClose}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: 'text.secondary',
+          }}
+        >
+          <CloseIcon fontSize="small" />
+        </IconButton>
+      </DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ pt: 1 }}>
           <TextField

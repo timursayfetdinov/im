@@ -31,6 +31,7 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import AddIcon from '@mui/icons-material/Add';
+import CloseIcon from '@mui/icons-material/Close';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import { nanoid } from 'nanoid';
 
@@ -515,7 +516,21 @@ export function ConditionBuilderDialog({ open, step, condition, onClose, onSave 
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Условие перехода</DialogTitle>
+      <DialogTitle sx={{ pr: 6 }}>
+        Условие перехода
+        <IconButton
+          aria-label="Закрыть"
+          onClick={onClose}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: 'text.secondary',
+          }}
+        >
+          <CloseIcon fontSize="small" />
+        </IconButton>
+      </DialogTitle>
 
       {hasVisual && (
         <Tabs
