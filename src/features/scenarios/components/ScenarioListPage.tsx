@@ -2,7 +2,6 @@ import { useState } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -50,7 +49,7 @@ export function ScenarioListPage() {
   const [deleteTarget, setDeleteTarget] = useState<ScenarioMeta | null>(null);
 
   const filtered = (scenarios ?? []).filter(
-    (s) =>
+    s =>
       s.name.toLowerCase().includes(search.toLowerCase()) ||
       s.description.toLowerCase().includes(search.toLowerCase())
   );
@@ -59,7 +58,7 @@ export function ScenarioListPage() {
     createMutation.mutate(
       { name, description },
       {
-        onSuccess: (scenario) => {
+        onSuccess: scenario => {
           setCreateOpen(false);
           navigate({ to: '/scenarios/$id', params: { id: scenario.scenario.id } });
         },
@@ -76,7 +75,7 @@ export function ScenarioListPage() {
 
   function handleDuplicate(id: string) {
     duplicateMutation.mutate(id, {
-      onSuccess: (scenario) =>
+      onSuccess: scenario =>
         navigate({ to: '/scenarios/$id', params: { id: scenario.scenario.id } }),
     });
   }
@@ -112,7 +111,7 @@ export function ScenarioListPage() {
         <TextField
           placeholder="Поиск по названию или описанию…"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={e => setSearch(e.target.value)}
           size="small"
           sx={{ mb: 2, width: 360 }}
           slotProps={{
@@ -137,9 +136,7 @@ export function ScenarioListPage() {
                 <TableRow>
                   <TableCell>Название</TableCell>
                   <TableCell>Описание</TableCell>
-                  <TableCell align="center">Версия</TableCell>
                   <TableCell>Изменён</TableCell>
-                  <TableCell>Нач. шаг</TableCell>
                   <TableCell align="right">Действия</TableCell>
                 </TableRow>
               </TableHead>
@@ -151,7 +148,7 @@ export function ScenarioListPage() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filtered.map((s) => (
+                  filtered.map(s => (
                     <TableRow
                       key={s.id}
                       hover
@@ -167,13 +164,14 @@ export function ScenarioListPage() {
                         <Typography
                           variant="body2"
                           color="text.secondary"
-                          sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                          sx={{
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
                         >
                           {s.description || '—'}
                         </Typography>
-                      </TableCell>
-                      <TableCell align="center">
-                        <Chip label={`v${s.version}`} size="small" />
                       </TableCell>
                       <TableCell>
                         <Typography variant="body2" color="text.secondary">
@@ -186,18 +184,11 @@ export function ScenarioListPage() {
                           })}
                         </Typography>
                       </TableCell>
-                      <TableCell>
-                        <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
-                          {s.initialStep || '—'}
-                        </Typography>
-                      </TableCell>
-                      <TableCell align="right" onClick={(e) => e.stopPropagation()}>
+                      <TableCell align="right" onClick={e => e.stopPropagation()}>
                         <Tooltip title="Редактировать">
                           <IconButton
                             size="small"
-                            onClick={() =>
-                              navigate({ to: '/scenarios/$id', params: { id: s.id } })
-                            }
+                            onClick={() => navigate({ to: '/scenarios/$id', params: { id: s.id } })}
                           >
                             <EditOutlinedIcon fontSize="small" />
                           </IconButton>
@@ -212,11 +203,7 @@ export function ScenarioListPage() {
                           </IconButton>
                         </Tooltip>
                         <Tooltip title="Удалить">
-                          <IconButton
-                            size="small"
-                            color="error"
-                            onClick={() => setDeleteTarget(s)}
-                          >
+                          <IconButton size="small" color="error" onClick={() => setDeleteTarget(s)}>
                             <DeleteOutlineIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
