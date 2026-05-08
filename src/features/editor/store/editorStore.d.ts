@@ -12,7 +12,7 @@ type EditorActions = {
     updateMeta: (patch: Partial<Scenario['scenario']>) => void;
     clearScenario: () => void;
     addStep: (type: StepType) => void;
-    updateStep: (id: string, patch: Partial<Omit<Step, 'type' | 'view' | 'transitions'>>) => void;
+    updateStep: (id: string, patch: Partial<Omit<Step, 'id' | 'type' | 'view' | 'transitions'>>) => void;
     updateStepView: (id: string, view: Step['view']) => void;
     removeStep: (id: string) => void;
     duplicateStep: (id: string) => void;
@@ -330,7 +330,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
         updateMeta: (patch: Partial<Scenario["scenario"]>) => void;
         clearScenario: () => void;
         addStep: (type: StepType) => void;
-        updateStep: (id: string, patch: Partial<Omit<Step, "type" | "view" | "transitions">>) => void;
+        updateStep: (id: string, patch: Partial<Omit<Step, "id" | "type" | "view" | "transitions">>) => void;
         updateStepView: (id: string, view: Step["view"]) => void;
         removeStep: (id: string) => void;
         duplicateStep: (id: string) => void;
@@ -647,7 +647,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
         updateMeta: (patch: Partial<Scenario["scenario"]>) => void;
         clearScenario: () => void;
         addStep: (type: StepType) => void;
-        updateStep: (id: string, patch: Partial<Omit<Step, "type" | "view" | "transitions">>) => void;
+        updateStep: (id: string, patch: Partial<Omit<Step, "id" | "type" | "view" | "transitions">>) => void;
         updateStepView: (id: string, view: Step["view"]) => void;
         removeStep: (id: string) => void;
         duplicateStep: (id: string) => void;

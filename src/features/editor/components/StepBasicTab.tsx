@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import { useForm } from '@tanstack/react-form';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
@@ -8,7 +7,6 @@ import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
-import { slugify } from '../../../shared/lib/slugify';
 import type { Step } from '../../../shared/types/scenario';
 import { useEditorStore } from '../store/editorStore';
 
@@ -21,7 +19,7 @@ function useStepFieldError(stepId: string, field: string): string | undefined {
 type Props = { step: Step };
 
 type BoolField = 'initial' | 'finish' | 'report' | 'editable' | 'multitasking';
-type TextField_ = 'id' | 'title' | 'description';
+type TextField_ = 'title' | 'description';
 
 const BOOL_FIELDS: { name: BoolField; label: string; hint: string }[] = [
   { name: 'initial', label: 'Начальный шаг', hint: 'С этого шага начинается сценарий' },
@@ -41,15 +39,10 @@ const BOOL_FIELDS: { name: BoolField; label: string; hint: string }[] = [
 export function StepBasicTab({ step }: Props) {
   const updateStep = useEditorStore(s => s.updateStep);
   const titleError = useStepFieldError(step.id, 'title');
-  const idError = useStepFieldError(step.id, 'id');
   const finishError = useStepFieldError(step.id, 'finish');
-
-  // Track whether the user manually edited the id field so auto-slug stops overwriting
-  const isIdManuallyEdited = useRef(step.id !== '' && step.id !== slugify(step.title));
 
   const form = useForm({
     defaultValues: {
-      id: step.id,
       title: step.title,
       description: step.description,
       initial: step.initial,
@@ -82,44 +75,12 @@ export function StepBasicTab({ step }: Props) {
             error={!!titleError}
             helperText={titleError}
             onChange={e => {
-              const val = e.target.value;
-              field.handleChange(val);
-              if (!isIdManuallyEdited.current) {
-                form.setFieldValue('id', slugify(val));
-              }
-            }}
-            onBlur={() => {
-              field.handleBlur();
-              syncText('title', field.state.value);
-              if (!isIdManuallyEdited.current) {
-                const slug = slugify(field.state.value);
-                form.setFieldValue('id', slug);
-                syncText('id', slug);
-              }
-            }}
-          />
-        )}
-      </form.Field>
-
-      {/* id ─────────────────────────────────────────────────────────────── */}
-      <form.Field name="id">
-        {field => (
-          <TextField
-            label="ID шага"
-            size="small"
-            fullWidth
-            value={field.state.value}
-            error={!!idError}
-            helperText={idError ?? 'Уникальный идентификатор — латиница, цифры, подчёркивание'}
-            onChange={e => {
-              isIdManuallyEdited.current = true;
               field.handleChange(e.target.value);
             }}
             onBlur={() => {
               field.handleBlur();
-              syncText('id', field.state.value);
+              syncText('title', field.state.value);
             }}
-            slotProps={{ input: { sx: { fontFamily: 'monospace', fontSize: '0.85rem' } } }}
           />
         )}
       </form.Field>
