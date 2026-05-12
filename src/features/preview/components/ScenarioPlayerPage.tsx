@@ -104,9 +104,9 @@ function FinishScreen({
     <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
       <Card variant="outlined" sx={{ maxWidth: 560, width: '100%' }}>
         <CardContent>
-          <Stack alignItems="center" spacing={1.5} sx={{ py: 2 }}>
+          <Stack spacing={1.5} sx={{ alignItems: 'center', py: 2 }}>
             <CheckCircleOutlinedIcon sx={{ fontSize: 64, color: 'success.main' }} />
-            <Typography variant="h5" fontWeight={600}>
+            <Typography variant="h5" sx={{ fontWeight: 600 }}>
               Сценарий завершён
             </Typography>
             <Typography variant="body2" color="text.secondary">
@@ -132,7 +132,7 @@ function FinishScreen({
                   primary={entry.step.title}
                   secondary={formatStepValue(entry.step, entry.value)}
                   slotProps={{
-                    primary: { variant: 'body2', fontWeight: 500 },
+                    primary: { variant: 'body2', sx: { fontWeight: 500 } },
                     secondary: { variant: 'caption' },
                   }}
                 />
@@ -323,7 +323,7 @@ export function ScenarioPlayerPage() {
               <ArrowBackIcon />
             </IconButton>
           </Tooltip>
-          <Typography variant="subtitle1" fontWeight={500} sx={{ flexGrow: 1 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 500, flexGrow: 1 }}>
             {scenario ? scenario.scenario.name : 'Предпросмотр'}
           </Typography>
           <Typography variant="caption" color="text.secondary">

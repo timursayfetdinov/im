@@ -11,14 +11,14 @@ import {
   useEdgesState,
   useReactFlow,
 } from '@xyflow/react';
-import type { Node, NodeDragHandler } from '@xyflow/react';
+import type { Edge, Node, OnNodeDrag } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
 
 import type { Scenario } from '../../../shared/types/scenario';
-import { buildDiagramGraph, type StepNodeData } from '../lib/buildDiagramGraph';
+import { buildDiagramGraph, type DiagramEdgeData, type StepNodeData } from '../lib/buildDiagramGraph';
 import { DiagramEdge } from './DiagramEdge';
 import { StepNode } from './StepNode';
 import { STEP_META } from '../config/stepMeta';
@@ -64,7 +64,7 @@ type Props = {
 function DiagramCanvas({ scenario }: Props) {
   const scenarioId = scenario.scenario.id;
   const [nodes, setNodes, onNodesChange] = useNodesState<Node<StepNodeData>>([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge<DiagramEdgeData>>([]);
   const { fitView } = useReactFlow();
 
   // Rebuild graph on scenario change, restoring saved positions from localStorage.
@@ -79,7 +79,7 @@ function DiagramCanvas({ scenario }: Props) {
   }, [scenario, scenarioId, setNodes, setEdges]);
 
   // Persist all node positions to localStorage after each drag.
-  const handleNodeDragStop: NodeDragHandler = useCallback(
+  const handleNodeDragStop: OnNodeDrag<Node<StepNodeData>> = useCallback(
     (_event, _node, draggedNodes) => {
       const saved = loadPositions(scenarioId);
       draggedNodes.forEach((n) => { saved[n.id] = n.position; });

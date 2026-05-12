@@ -137,7 +137,7 @@ export function ImportDialog({ open, onClose }: Props) {
 
         {errors.length > 0 && (
           <Alert severity="error" sx={{ mt: 2 }}>
-            <Typography variant="body2" fontWeight={500} gutterBottom>
+            <Typography variant="body2" sx={{ fontWeight: 500 }} gutterBottom>
               Файл не прошёл проверку:
             </Typography>
             <Box component="ul" sx={{ m: 0, pl: 2 }}>
