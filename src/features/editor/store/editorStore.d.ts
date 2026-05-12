@@ -46,6 +46,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;
+                initial: boolean;
                 transitions: {
                     default: {
                         goto: string | null;
@@ -81,6 +82,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;
+                initial: boolean;
                 transitions: {
                     default: {
                         goto: string | null;
@@ -121,6 +123,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;
+                initial: boolean;
                 transitions: {
                     default: {
                         goto: string | null;
@@ -159,6 +162,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;
+                initial: boolean;
                 transitions: {
                     default: {
                         goto: string | null;
@@ -196,6 +200,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;
+                initial: boolean;
                 transitions: {
                     default: {
                         goto: string | null;
@@ -237,6 +242,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;
+                initial: boolean;
                 transitions: {
                     default: {
                         goto: string | null;
@@ -280,6 +286,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;
+                initial: boolean;
                 transitions: {
                     default: {
                         goto: string | null;
@@ -363,6 +370,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;
+                initial: boolean;
                 transitions: {
                     default: {
                         goto: string | null;
@@ -398,6 +406,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;
+                initial: boolean;
                 transitions: {
                     default: {
                         goto: string | null;
@@ -438,6 +447,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;
+                initial: boolean;
                 transitions: {
                     default: {
                         goto: string | null;
@@ -476,6 +486,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;
+                initial: boolean;
                 transitions: {
                     default: {
                         goto: string | null;
@@ -513,6 +524,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;
+                initial: boolean;
                 transitions: {
                     default: {
                         goto: string | null;
@@ -554,6 +566,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;
+                initial: boolean;
                 transitions: {
                     default: {
                         goto: string | null;
@@ -597,6 +610,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;
+                initial: boolean;
                 transitions: {
                     default: {
                         goto: string | null;

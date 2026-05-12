@@ -3,6 +3,7 @@ import {
   BaseEdge,
   EdgeLabelRenderer,
   getSmoothStepPath,
+  type Edge,
   type EdgeProps,
 } from '@xyflow/react';
 import Box from '@mui/material/Box';
@@ -23,7 +24,7 @@ export function DiagramEdge({
   labelStyle,
   labelBgStyle,
   data,
-}: EdgeProps<DiagramEdgeData>) {
+}: EdgeProps<Edge<DiagramEdgeData>>) {
   const [edgePath, labelX, labelY] = getSmoothStepPath({
     sourceX,
     sourceY,

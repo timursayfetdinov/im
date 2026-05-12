@@ -9,7 +9,7 @@ export type StepValue =
   | string[];                 // Checkbox: selected option ids
 
 /** Find the next step id (or null = scenario end) for the given step + value. */
-export function resolveNextStep(step: Step, value: StepValue, scenario: Scenario): string | null {
+export function resolveNextStep(step: Step, value: StepValue, _scenario: Scenario): string | null {
   // Scenario ends on a finish step (transitions are ignored)
   if (step.finish) return null;
 

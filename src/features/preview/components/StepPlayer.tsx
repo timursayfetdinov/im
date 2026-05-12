@@ -105,9 +105,11 @@ function CommentPlayer({ step, onAdvance }: { step: CommentStep; onAdvance: (v: 
         onChange={(e) => setText(e.target.value)}
         required={step.view.required}
         disabled={step.view.readonly}
-        inputProps={{
-          minLength: step.view.minLength || undefined,
-          maxLength: step.view.maxLength || undefined,
+        slotProps={{
+          htmlInput: {
+            minLength: step.view.minLength || undefined,
+            maxLength: step.view.maxLength || undefined,
+          },
         }}
       />
     </StepCard>
@@ -129,11 +131,13 @@ function DatetimePlayer({ step, onAdvance }: { step: DatetimeStep; onAdvance: (v
         required={step.view.required}
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        inputProps={{
-          min: step.view.min ?? undefined,
-          max: step.view.max ?? undefined,
+        slotProps={{
+          htmlInput: {
+            min: step.view.min ?? undefined,
+            max: step.view.max ?? undefined,
+          },
+          inputLabel: { shrink: true },
         }}
-        slotProps={{ inputLabel: { shrink: true } }}
       />
     </StepCard>
   );
@@ -161,7 +165,7 @@ function ImagePlayer({ step, onAdvance }: { step: ImageStep; onAdvance: (v: Step
 
   return (
     <StepCard step={step} canAdvance onAdvance={() => onAdvance(null)}>
-      <Stack spacing={1.5} alignItems="center" sx={{ py: 2 }}>
+      <Stack spacing={1.5} sx={{ alignItems: 'center', py: 2 }}>
         <Icon sx={{ fontSize: 56, color: 'text.secondary' }} />
         <Typography variant="body2" color="text.secondary">
           {label}

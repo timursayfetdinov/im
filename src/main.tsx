@@ -2,7 +2,8 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import CssBaseline from '@mui/material/CssBaseline';
 import GlobalStyles from '@mui/material/GlobalStyles';
-import { Providers } from './app/providers';
+
+import { Providers } from '@/app/providers';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
