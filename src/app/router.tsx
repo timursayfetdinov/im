@@ -1,37 +1,44 @@
-import { createRouter, createRoute, createRootRoute, Outlet, Navigate } from '@tanstack/react-router';
-import { ScenarioListPage } from '../features/scenarios/components/ScenarioListPage';
-import { EditorPage } from '../features/editor/components/EditorPage';
-import { ScenarioPlayerPage } from '../features/preview/components/ScenarioPlayerPage';
+import {
+  createRouter,
+  createRoute,
+  createRootRoute,
+  Outlet,
+  Navigate,
+} from '@tanstack/react-router';
 
-const rootRoute = createRootRoute({
+import { EditorPage } from '@/features/editor/components/EditorPage';
+import { ScenarioListPage } from '@/features/scenarios/components/ScenarioListPage';
+import { ScenarioPlayerPage } from '@/features/preview/components/ScenarioPlayerPage';
+
+export const rootRoute = createRootRoute({
   component: () => <Outlet />,
 });
 
-const indexRoute = createRoute({
+export const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
   component: () => <Navigate to="/scenarios" />,
 });
 
-const scenariosRoute = createRoute({
+export const scenariosRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/scenarios',
   component: ScenarioListPage,
 });
 
-const editorRoute = createRoute({
+export const editorRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/scenarios/$id',
   component: EditorPage,
 });
 
-const previewRoute = createRoute({
+export const previewRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/scenarios/$id/preview',
   component: ScenarioPlayerPage,
 });
 
-const routeTree = rootRoute.addChildren([
+export const routeTree = rootRoute.addChildren([
   indexRoute,
   scenariosRoute,
   editorRoute,
