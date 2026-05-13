@@ -17,7 +17,7 @@ type Props = {
 };
 
 export const StepNode = memo(function StepNode({ data }: Props) {
-  const { step, isInitial, isOrphan } = data;
+  const { step, isInitial, isOrphan, visited } = data;
   const meta = STEP_META[step.type];
 
   const theme = useTheme();
@@ -38,13 +38,16 @@ export const StepNode = memo(function StepNode({ data }: Props) {
         ? initialAccent.hex
         : meta.color;
 
+  const initialLikeBg = alpha(theme.palette.success.main, 0.08);
   const bgColor = isOrphan
     ? '#f8fafc'
     : step.finish
       ? alpha(theme.palette.error.main, 0.08)
-      : isInitial
-        ? alpha(theme.palette.success.main, 0.08)
-        : '#fff';
+      : visited
+        ? initialLikeBg
+        : isInitial
+          ? initialLikeBg
+          : '#fff';
   const opacity = isOrphan ? 0.6 : 1;
 
   const viewLabel = getViewLabel(step);

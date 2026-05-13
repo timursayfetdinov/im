@@ -34,6 +34,7 @@ import { useNavigate, useParams } from '@tanstack/react-router';
 import type { Step, Scenario } from '../../../shared/types/scenario';
 import { useScenario } from '../../scenarios/api/useScenarios';
 import { resolveNextStep, formatStepValue, type StepValue } from '../lib/playerEngine';
+import { FinishPreviewDiagram } from './FinishPreviewDiagram';
 import { StepPlayer } from './StepPlayer';
 
 // ─── History entry ────────────────────────────────────────────────────────────
@@ -58,6 +59,11 @@ function FinishScreen({
 }) {
   const [jsonOpen, setJsonOpen] = useState(false);
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle');
+
+  const visitedStepIds = useMemo(
+    () => new Set(history.map((h) => h.step.id)),
+    [history],
+  );
 
   const resultJson = useMemo(() => {
     const result = {
@@ -101,57 +107,95 @@ function FinishScreen({
   }
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-      <Card variant="outlined" sx={{ maxWidth: 560, width: '100%' }}>
-        <CardContent>
-          <Stack spacing={1.5} sx={{ alignItems: 'center', py: 2 }}>
-            <CheckCircleOutlinedIcon sx={{ fontSize: 64, color: 'success.main' }} />
-            <Typography variant="h5" sx={{ fontWeight: 600 }}>
-              Сценарий завершён
+    <>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          width: '100%',
+          flex: 1,
+          minHeight: 0,
+          alignSelf: 'stretch',
+        }}
+      >
+      <Box
+        sx={{
+          flex: 1,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: { md: 'flex-start' },
+          p: { xs: 2, md: 3 },
+          overflow: 'auto',
+          minWidth: 0,
+        }}
+      >
+        <Card variant="outlined" sx={{ maxWidth: 560, width: '100%' }}>
+          <CardContent>
+            <Stack spacing={1.5} sx={{ alignItems: 'center', py: 2 }}>
+              <CheckCircleOutlinedIcon sx={{ fontSize: 64, color: 'success.main' }} />
+              <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                Сценарий завершён
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {scenario.scenario.name}
+              </Typography>
+            </Stack>
+
+            <Divider sx={{ my: 2 }} />
+
+            <Typography variant="subtitle2" gutterBottom>
+              Пройденные шаги
             </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {scenario.scenario.name}
-            </Typography>
-          </Stack>
+            <List dense disablePadding>
+              {history.map((entry, i) => (
+                <ListItem
+                  key={i}
+                  disableGutters
+                  divider={i < history.length - 1}
+                  onClick={() => onGoToStep(i)}
+                  sx={{ cursor: 'pointer', borderRadius: 1, '&:hover': { bgcolor: 'action.hover' }, px: 1 }}
+                >
+                  <ListItemText
+                    primary={entry.step.title}
+                    secondary={formatStepValue(entry.step, entry.value)}
+                    slotProps={{
+                      primary: { variant: 'body2', sx: { fontWeight: 500 } },
+                      secondary: { variant: 'caption' },
+                    }}
+                  />
+                </ListItem>
+              ))}
+            </List>
 
-          <Divider sx={{ my: 2 }} />
+            <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', gap: 1, flexWrap: 'wrap' }}>
+              <Button startIcon={<RefreshIcon />} variant="outlined" onClick={onReset}>
+                Сбросить и пройти снова
+              </Button>
+              <Button startIcon={<DataObjectOutlinedIcon />} variant="outlined" onClick={() => setJsonOpen(true)}>
+                JSON
+              </Button>
+            </Box>
+          </CardContent>
+        </Card>
+      </Box>
 
-          <Typography variant="subtitle2" gutterBottom>
-            Пройденные шаги
-          </Typography>
-          <List dense disablePadding>
-            {history.map((entry, i) => (
-              <ListItem
-                key={i}
-                disableGutters
-                divider={i < history.length - 1}
-                onClick={() => onGoToStep(i)}
-                sx={{ cursor: 'pointer', borderRadius: 1, '&:hover': { bgcolor: 'action.hover' }, px: 1 }}
-              >
-                <ListItemText
-                  primary={entry.step.title}
-                  secondary={formatStepValue(entry.step, entry.value)}
-                  slotProps={{
-                    primary: { variant: 'body2', sx: { fontWeight: 500 } },
-                    secondary: { variant: 'caption' },
-                  }}
-                />
-              </ListItem>
-            ))}
-          </List>
+      <Box
+        sx={{
+          flex: 1,
+          minWidth: 0,
+          minHeight: { xs: 400, md: 0 },
+          display: 'flex',
+          flexDirection: 'column',
+          borderLeft: { md: 1 },
+          borderTop: { xs: 1, md: 0 },
+          borderColor: 'divider',
+        }}
+      >
+        <FinishPreviewDiagram scenario={scenario} visitedStepIds={visitedStepIds} />
+      </Box>
+    </Box>
 
-          <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', gap: 1, flexWrap: 'wrap' }}>
-            <Button startIcon={<RefreshIcon />} variant="outlined" onClick={onReset}>
-              Сбросить и пройти снова
-            </Button>
-            <Button startIcon={<DataObjectOutlinedIcon />} variant="outlined" onClick={() => setJsonOpen(true)}>
-              JSON
-            </Button>
-          </Box>
-        </CardContent>
-      </Card>
-
-      <Dialog open={jsonOpen} onClose={() => setJsonOpen(false)} maxWidth="md" fullWidth>
+    <Dialog open={jsonOpen} onClose={() => setJsonOpen(false)} maxWidth="md" fullWidth>
         <DialogTitle sx={{ pr: 6 }}>
           JSON результата
           <IconButton
@@ -191,7 +235,7 @@ function FinishScreen({
           <Button onClick={() => setJsonOpen(false)}>Закрыть</Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </>
   );
 }
 
@@ -240,12 +284,24 @@ function Player({ scenario }: { scenario: Scenario }) {
 
   if (finished) {
     return (
-      <FinishScreen
-        history={history}
-        scenario={scenario}
-        onReset={reset}
-        onGoToStep={handleGoToHistoryStep}
-      />
+      <Box
+        sx={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignSelf: 'stretch',
+          width: '100%',
+          minHeight: 0,
+          height: { md: 'calc(100dvh - 48px)' },
+        }}
+      >
+        <FinishScreen
+          history={history}
+          scenario={scenario}
+          onReset={reset}
+          onGoToStep={handleGoToHistoryStep}
+        />
+      </Box>
     );
   }
 
@@ -268,7 +324,7 @@ function Player({ scenario }: { scenario: Scenario }) {
   }
 
   return (
-    <Stack spacing={3} sx={{ p: 3, alignItems: 'center' }}>
+    <Stack spacing={3} sx={{ p: 3, alignItems: 'center', flex: 1, overflow: 'auto', minHeight: 0, width: '100%' }}>
       {/* Breadcrumb path */}
       {history.length > 0 && (
         <Box sx={{ width: '100%', maxWidth: 560 }}>
@@ -332,7 +388,7 @@ export function ScenarioPlayerPage() {
         </Toolbar>
       </AppBar>
 
-      <Box sx={{ flexGrow: 1, overflowY: 'auto' }}>
+      <Box sx={{ flexGrow: 1, minHeight: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         {isLoading && (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
             <CircularProgress />
