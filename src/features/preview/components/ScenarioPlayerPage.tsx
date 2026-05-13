@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, useRef, useLayoutEffect } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
@@ -42,6 +42,8 @@ import { StepPlayer } from './StepPlayer';
 type HistoryEntry = {
   step: Step;
   value: StepValue;
+  startedAt: string;
+  completedAt: string;
 };
 
 // ─── Finish screen ────────────────────────────────────────────────────────────
@@ -49,11 +51,13 @@ type HistoryEntry = {
 function FinishScreen({
   history,
   scenario,
+  finishedAt,
   onReset,
   onGoToStep,
 }: {
   history: HistoryEntry[];
   scenario: Scenario;
+  finishedAt: string;
   onReset: () => void;
   onGoToStep: (index: number) => void;
 }) {
@@ -69,19 +73,24 @@ function FinishScreen({
     const result = {
       scenario: {
         id: scenario.scenario.id,
-        name: scenario.scenario.name,
         version: scenario.scenario.version,
       },
-      finishedAt: new Date().toISOString(),
-      history: history.map((h) => ({
-        stepId: h.step.id,
-        title: h.step.title,
-        type: h.step.type,
-        value: h.value,
-      })),
+      finishedAt,
+      history: history.map((h) => {
+        const row: Record<string, unknown> = {
+          stepId: h.step.id,
+          startedAt: h.startedAt,
+          completedAt: h.completedAt,
+          userId: null,
+        };
+        if (h.value !== null) {
+          row.value = h.value;
+        }
+        return row;
+      }),
     };
     return JSON.stringify(result, null, 2);
-  }, [history, scenario.scenario.id, scenario.scenario.name, scenario.scenario.version]);
+  }, [finishedAt, history, scenario.scenario.id, scenario.scenario.version]);
 
   async function handleCopyJson() {
     try {
@@ -250,13 +259,27 @@ function Player({ scenario }: { scenario: Scenario }) {
     initialStep?.id ?? null
   );
   const [finished, setFinished] = useState(false);
+  const [finishedAt, setFinishedAt] = useState<string | null>(null);
+
+  const lastStepIdRef = useRef<string | null>(null);
+  const stepEnteredAtRef = useRef<string>(new Date().toISOString());
+
+  useLayoutEffect(() => {
+    if (currentStepId == null) return;
+    if (lastStepIdRef.current !== currentStepId) {
+      lastStepIdRef.current = currentStepId;
+      stepEnteredAtRef.current = new Date().toISOString();
+    }
+  }, [currentStepId]);
 
   const currentStep = currentStepId ? stepMap.get(currentStepId) ?? null : null;
 
   function reset() {
+    lastStepIdRef.current = null;
     setHistory([]);
     setCurrentStepId(initialStep?.id ?? null);
     setFinished(false);
+    setFinishedAt(null);
   }
 
   const handleAdvance = useCallback(
@@ -264,9 +287,12 @@ function Player({ scenario }: { scenario: Scenario }) {
       if (!currentStep) return;
 
       const nextId = resolveNextStep(currentStep, value, scenario);
-      setHistory((prev) => [...prev, { step: currentStep, value }]);
+      const startedAt = stepEnteredAtRef.current;
+      const completedAt = new Date().toISOString();
+      setHistory((prev) => [...prev, { step: currentStep, value, startedAt, completedAt }]);
 
       if (nextId === null) {
+        setFinishedAt(completedAt);
         setFinished(true);
         setCurrentStepId(null);
       } else {
@@ -276,11 +302,17 @@ function Player({ scenario }: { scenario: Scenario }) {
     [currentStep, scenario]
   );
 
-  const handleGoToHistoryStep = useCallback((index: number) => {
-    setHistory((prev) => prev.slice(0, index));
-    setCurrentStepId(history[index].step.id);
-    setFinished(false);
-  }, [history]);
+  const handleGoToHistoryStep = useCallback(
+    (index: number) => {
+      const entry = history[index];
+      if (!entry) return;
+      setHistory(history.slice(0, index));
+      setCurrentStepId(entry.step.id);
+      setFinished(false);
+      setFinishedAt(null);
+    },
+    [history]
+  );
 
   if (finished) {
     return (
@@ -298,6 +330,7 @@ function Player({ scenario }: { scenario: Scenario }) {
         <FinishScreen
           history={history}
           scenario={scenario}
+          finishedAt={finishedAt ?? new Date().toISOString()}
           onReset={reset}
           onGoToStep={handleGoToHistoryStep}
         />
