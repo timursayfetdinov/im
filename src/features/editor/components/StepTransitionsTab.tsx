@@ -94,7 +94,7 @@ function GotoSelect({
       </MenuItem>
       {steps.map((s) => (
         <MenuItem key={s.id} value={s.id}>
-          {s.title ? `${s.title} (${s.id})` : s.id}
+          {s.title || 'Без названия'}
         </MenuItem>
       ))}
     </TextField>

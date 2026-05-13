@@ -120,6 +120,37 @@ function checkStepOptions(step: Step, errors: ValidationError[]) {
       const rule = step.transitions.rules![i];
       checkConditionOptionIds(step.id, rule.condition, optionIds, errors, i);
     }
+
+    if (step.type === 'Checkbox') {
+      const optionCount = step.view.options.length;
+      const { minSelected, maxSelected } = step.view;
+      if (minSelected > optionCount) {
+        errors.push({
+          code: 'CHECKBOX_MIN_EXCEEDS_OPTIONS',
+          message: `Минимум выбранных (${minSelected}) больше числа вариантов (${optionCount})`,
+          stepId: step.id,
+          field: 'view.minSelected',
+        });
+      }
+      if (maxSelected !== null) {
+        if (maxSelected < minSelected) {
+          errors.push({
+            code: 'CHECKBOX_MAX_LESS_THAN_MIN',
+            message: `Максимум выбранных (${maxSelected}) меньше минимума (${minSelected})`,
+            stepId: step.id,
+            field: 'view.maxSelected',
+          });
+        }
+        if (maxSelected > optionCount) {
+          errors.push({
+            code: 'CHECKBOX_MAX_EXCEEDS_OPTIONS',
+            message: `Максимум выбранных (${maxSelected}) больше числа вариантов (${optionCount})`,
+            stepId: step.id,
+            field: 'view.maxSelected',
+          });
+        }
+      }
+    }
   }
 
   if (step.type === 'Select') {

@@ -41,6 +41,12 @@ import type {
 } from '../../../shared/types/scenario';
 import { useEditorStore } from '../store/editorStore';
 
+function useStepFieldError(stepId: string, field: string): string | undefined {
+  return useEditorStore(
+    s => s.validationErrors.find(e => e.stepId === stepId && e.field === field)?.message
+  );
+}
+
 // ─── useViewSync ──────────────────────────────────────────────────────────────
 // Keeps a local copy of the view for fast UI, and exposes:
 //   patch(changes, immediate?) — update local state; immediate=true also syncs to store
@@ -95,9 +101,6 @@ function OptionsList({
     <Box>
       {options.length > 0 && (
         <Box sx={{ display: 'flex', gap: 1, mb: 0.5, px: 0.5 }}>
-          <Typography variant="caption" color="text.secondary" sx={{ width: 110 }}>
-            ID
-          </Typography>
           <Typography variant="caption" color="text.secondary" sx={{ flexGrow: 1 }}>
             Метка
           </Typography>
@@ -117,13 +120,6 @@ function OptionsList({
       <Stack spacing={1}>
         {options.map((opt, idx) => (
           <Box key={opt.id} sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-            <TextField
-              size="small"
-              value={opt.id}
-              onChange={e => update(idx, { id: e.target.value })}
-              sx={{ width: 110 }}
-              slotProps={{ input: { sx: { fontFamily: 'monospace', fontSize: '0.8rem' } } }}
-            />
             <TextField
               size="small"
               value={opt.label}
@@ -186,9 +182,6 @@ function SelectListsEditor({
               <Typography variant="body2" sx={{ fontWeight: 500, flexGrow: 1 }}>
                 {list.label || <em style={{ opacity: 0.5 }}>Без названия</em>}
               </Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ fontFamily: 'monospace' }}>
-                {list.id}
-              </Typography>
               <Tooltip title="Удалить список">
                 <IconButton
                   size="small"
@@ -205,23 +198,13 @@ function SelectListsEditor({
           </AccordionSummary>
           <AccordionDetails>
             <Stack spacing={1.5}>
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <TextField
-                  label="ID списка"
-                  size="small"
-                  value={list.id}
-                  onChange={e => updateList(idx, { id: e.target.value })}
-                  sx={{ width: 140 }}
-                  slotProps={{ input: { sx: { fontFamily: 'monospace', fontSize: '0.8rem' } } }}
-                />
-                <TextField
-                  label="Название"
-                  size="small"
-                  value={list.label}
-                  onChange={e => updateList(idx, { label: e.target.value })}
-                  sx={{ flexGrow: 1 }}
-                />
-              </Box>
+              <TextField
+                label="Название"
+                size="small"
+                fullWidth
+                value={list.label}
+                onChange={e => updateList(idx, { label: e.target.value })}
+              />
               <Divider />
               <Typography variant="caption" color="text.secondary">
                 Варианты списка
@@ -365,26 +348,6 @@ function DatetimeSettings({
           />
         }
       />
-      <TextField
-        label="Минимальная дата/время"
-        size="small"
-        fullWidth
-        value={view.min ?? ''}
-        placeholder="Не ограничено"
-        helperText="ISO 8601: 2024-01-01T00:00"
-        onChange={e => patch({ min: e.target.value || null })}
-        onBlur={sync}
-      />
-      <TextField
-        label="Максимальная дата/время"
-        size="small"
-        fullWidth
-        value={view.max ?? ''}
-        placeholder="Не ограничено"
-        helperText="ISO 8601: 2099-12-31T23:59"
-        onChange={e => patch({ max: e.target.value || null })}
-        onBlur={sync}
-      />
     </Stack>
   );
 }
@@ -482,7 +445,7 @@ function RadioButtonSettings({
         </MenuItem>
         {view.options.map(opt => (
           <MenuItem key={opt.id} value={opt.id}>
-            {opt.label || opt.id}
+            {opt.label || 'Без метки'}
           </MenuItem>
         ))}
       </TextField>
@@ -506,6 +469,8 @@ function CheckboxSettings({
   onSync: (v: CheckboxView) => void;
 }) {
   const { view, patch, sync } = useViewSync(step.view, onSync);
+  const minError = useStepFieldError(step.id, 'view.minSelected');
+  const maxError = useStepFieldError(step.id, 'view.maxSelected');
   return (
     <Stack spacing={2.5} sx={{ p: 2.5 }}>
       <TextField
@@ -524,7 +489,9 @@ function CheckboxSettings({
           value={view.minSelected}
           onChange={e => patch({ minSelected: Number(e.target.value) }, true)}
           sx={{ width: 140 }}
-          slotProps={{ input: { inputProps: { min: 0 } } }}
+          error={!!minError}
+          helperText={minError}
+          slotProps={{ input: { inputProps: { min: 0, max: view.options.length } } }}
         />
         <TextField
           label="Макс. выбранных"
@@ -532,13 +499,21 @@ function CheckboxSettings({
           type="number"
           value={view.maxSelected ?? ''}
           placeholder="∞"
-          helperText="Пусто = без ограничений"
+          helperText={maxError ?? 'Пусто = без ограничений'}
+          error={!!maxError}
           onChange={e =>
             patch({ maxSelected: e.target.value === '' ? null : Number(e.target.value) }, true)
           }
           onBlur={sync}
           sx={{ width: 140 }}
-          slotProps={{ input: { inputProps: { min: 0 } } }}
+          slotProps={{
+            input: {
+              inputProps: {
+                min: view.minSelected,
+                max: view.options.length,
+              },
+            },
+          }}
         />
       </Box>
       <Divider />
