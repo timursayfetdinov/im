@@ -1,11 +1,9 @@
 import { useMemo, useState, useCallback, useRef, useLayoutEffect } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
-import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -27,24 +25,24 @@ import CloseIcon from '@mui/icons-material/Close';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DataObjectOutlinedIcon from '@mui/icons-material/DataObjectOutlined';
 import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { useNavigate, useParams } from '@tanstack/react-router';
 
-import type { Step, Scenario } from '../../../shared/types/scenario';
+import type { Scenario } from '../../../shared/types/scenario';
 import { useScenario } from '../../scenarios/api/useScenarios';
 import { resolveNextStep, formatStepValue, type StepValue } from '../lib/playerEngine';
+import { PLAYER_PATH_LAYOUT_MODE } from '../lib/playerPreviewLayout';
+import {
+  formatDurationRu,
+  formatStepRunTime,
+  getScenarioProcessingStartIso,
+} from '../lib/stepTimingUi';
+import type { PlayerHistoryEntry } from '../lib/playerTypes';
 import { FinishPreviewDiagram } from './FinishPreviewDiagram';
+import { PreviewPathBreadcrumbs } from './PreviewPathBreadcrumbs';
+import { PreviewPathTimeline } from './PreviewPathTimeline';
+import { PreviewPlayerResizableLayout, DEFAULT_PREVIEW_SPLIT_LEFT } from './PreviewPlayerResizableLayout';
 import { StepPlayer } from './StepPlayer';
-
-// ─── History entry ────────────────────────────────────────────────────────────
-
-type HistoryEntry = {
-  step: Step;
-  value: StepValue;
-  startedAt: string;
-  completedAt: string;
-};
 
 // ─── Finish screen ────────────────────────────────────────────────────────────
 
@@ -52,12 +50,16 @@ function FinishScreen({
   history,
   scenario,
   finishedAt,
+  leftShare,
+  onLeftShareChange,
   onReset,
   onGoToStep,
 }: {
-  history: HistoryEntry[];
+  history: PlayerHistoryEntry[];
   scenario: Scenario;
   finishedAt: string;
+  leftShare: number;
+  onLeftShareChange: (share: number) => void;
   onReset: () => void;
   onGoToStep: (index: number) => void;
 }) {
@@ -115,94 +117,119 @@ function FinishScreen({
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
+  const initialStepId = scenario.scenario.initialStep;
+
+  const scenarioStartedAt = useMemo(
+    () =>
+      getScenarioProcessingStartIso(
+        history,
+        null,
+        history[0]?.startedAt ?? finishedAt,
+        initialStepId
+      ),
+    [finishedAt, history, initialStepId]
+  );
+
+  const runDurationLabel = useMemo(
+    () => formatDurationRu(scenarioStartedAt, finishedAt),
+    [finishedAt, scenarioStartedAt]
+  );
+
   return (
     <>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: { xs: 'column', md: 'row' },
-          width: '100%',
-          flex: 1,
-          minHeight: 0,
-          alignSelf: 'stretch',
-        }}
-      >
-      <Box
-        sx={{
-          flex: 1,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: { md: 'flex-start' },
-          p: { xs: 2, md: 3 },
-          overflow: 'auto',
-          minWidth: 0,
-        }}
-      >
-        <Card variant="outlined" sx={{ maxWidth: 560, width: '100%' }}>
-          <CardContent>
-            <Stack spacing={1.5} sx={{ alignItems: 'center', py: 2 }}>
-              <CheckCircleOutlinedIcon sx={{ fontSize: 64, color: 'success.main' }} />
-              <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                Сценарий завершён
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {scenario.scenario.name}
-              </Typography>
-            </Stack>
+      <PreviewPlayerResizableLayout
+        leftShare={leftShare}
+        onLeftShareChange={onLeftShareChange}
+        leftPanel={
+          <Box
+            sx={{
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: { md: 'flex-start' },
+              p: { xs: 2, md: 3 },
+            }}
+          >
+            <Card variant="outlined" sx={{ maxWidth: 560, width: '100%' }}>
+              <CardContent>
+                <Stack spacing={1.5} sx={{ alignItems: 'center', py: 2 }}>
+                  <CheckCircleOutlinedIcon sx={{ fontSize: 64, color: 'success.main' }} />
+                  <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                    Сценарий завершён
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {scenario.scenario.name}
+                  </Typography>
+                </Stack>
 
-            <Divider sx={{ my: 2 }} />
+                <Divider sx={{ my: 2 }} />
 
-            <Typography variant="subtitle2" gutterBottom>
-              Пройденные шаги
-            </Typography>
-            <List dense disablePadding>
-              {history.map((entry, i) => (
-                <ListItem
-                  key={i}
-                  disableGutters
-                  divider={i < history.length - 1}
-                  onClick={() => onGoToStep(i)}
-                  sx={{ cursor: 'pointer', borderRadius: 1, '&:hover': { bgcolor: 'action.hover' }, px: 1 }}
-                >
-                  <ListItemText
-                    primary={entry.step.title}
-                    secondary={formatStepValue(entry.step, entry.value)}
-                    slotProps={{
-                      primary: { variant: 'body2', sx: { fontWeight: 500 } },
-                      secondary: { variant: 'caption' },
-                    }}
-                  />
-                </ListItem>
-              ))}
-            </List>
+                <Typography variant="subtitle2" gutterBottom>
+                  Пройденные шаги
+                </Typography>
+                <List dense disablePadding>
+                  {history.map((entry, i) => (
+                    <ListItem
+                      key={i}
+                      disableGutters
+                      divider={i < history.length - 1}
+                      onClick={() => onGoToStep(i)}
+                      sx={{
+                        cursor: 'pointer',
+                        borderRadius: 1,
+                        '&:hover': { bgcolor: 'action.hover' },
+                        px: 1,
+                      }}
+                    >
+                      <ListItemText
+                        primary={entry.step.title}
+                        secondary={
+                          <Typography variant="caption" color="text.secondary">
+                            {formatStepValue(entry.step, entry.value)}
+                          </Typography>
+                        }
+                        slotProps={{
+                          primary: { variant: 'body2', sx: { fontWeight: 500 } },
+                        }}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
 
-            <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', gap: 1, flexWrap: 'wrap' }}>
-              <Button startIcon={<RefreshIcon />} variant="outlined" onClick={onReset}>
-                Сбросить и пройти снова
-              </Button>
-              <Button startIcon={<DataObjectOutlinedIcon />} variant="outlined" onClick={() => setJsonOpen(true)}>
-                JSON
-              </Button>
-            </Box>
-          </CardContent>
-        </Card>
-      </Box>
+                <Stack spacing={0.5} sx={{ mt: 2, mb: 1 }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                    Начало: {formatStepRunTime(scenarioStartedAt)}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                    Конец: {formatStepRunTime(finishedAt)}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                    Продолжительность: {runDurationLabel}
+                  </Typography>
+                </Stack>
 
-      <Box
-        sx={{
-          flex: 1,
-          minWidth: 0,
-          minHeight: { xs: 400, md: 0 },
-          display: 'flex',
-          flexDirection: 'column',
-          borderLeft: { md: 1 },
-          borderTop: { xs: 1, md: 0 },
-          borderColor: 'divider',
-        }}
-      >
-        <FinishPreviewDiagram scenario={scenario} visitedStepIds={visitedStepIds} />
-      </Box>
-    </Box>
+                <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center', gap: 1, flexWrap: 'wrap' }}>
+                  <Button startIcon={<RefreshIcon />} variant="outlined" onClick={onReset}>
+                    Сбросить и пройти снова
+                  </Button>
+                  <Button
+                    startIcon={<DataObjectOutlinedIcon />}
+                    variant="outlined"
+                    onClick={() => setJsonOpen(true)}
+                  >
+                    JSON
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          </Box>
+        }
+        rightPanel={
+          <Box sx={{ flex: 1, minHeight: 0, width: '100%', display: 'flex', flexDirection: 'column' }}>
+            <FinishPreviewDiagram scenario={scenario} visitedStepIds={visitedStepIds} />
+          </Box>
+        }
+      />
 
     <Dialog open={jsonOpen} onClose={() => setJsonOpen(false)} maxWidth="md" fullWidth>
         <DialogTitle sx={{ pr: 6 }}>
@@ -254,12 +281,14 @@ function Player({ scenario }: { scenario: Scenario }) {
   const stepMap = new Map(scenario.steps.map((s) => [s.id, s]));
   const initialStep = stepMap.get(scenario.scenario.initialStep);
 
-  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [history, setHistory] = useState<PlayerHistoryEntry[]>([]);
   const [currentStepId, setCurrentStepId] = useState<string | null>(
     initialStep?.id ?? null
   );
   const [finished, setFinished] = useState(false);
   const [finishedAt, setFinishedAt] = useState<string | null>(null);
+  const [currentStepStartedAt, setCurrentStepStartedAt] = useState(() => new Date().toISOString());
+  const [splitLeftShare, setSplitLeftShare] = useState(DEFAULT_PREVIEW_SPLIT_LEFT);
 
   const lastStepIdRef = useRef<string | null>(null);
   const stepEnteredAtRef = useRef<string>(new Date().toISOString());
@@ -268,7 +297,9 @@ function Player({ scenario }: { scenario: Scenario }) {
     if (currentStepId == null) return;
     if (lastStepIdRef.current !== currentStepId) {
       lastStepIdRef.current = currentStepId;
-      stepEnteredAtRef.current = new Date().toISOString();
+      const now = new Date().toISOString();
+      stepEnteredAtRef.current = now;
+      setCurrentStepStartedAt(now);
     }
   }, [currentStepId]);
 
@@ -331,6 +362,8 @@ function Player({ scenario }: { scenario: Scenario }) {
           history={history}
           scenario={scenario}
           finishedAt={finishedAt ?? new Date().toISOString()}
+          leftShare={splitLeftShare}
+          onLeftShareChange={setSplitLeftShare}
           onReset={reset}
           onGoToStep={handleGoToHistoryStep}
         />
@@ -356,37 +389,69 @@ function Player({ scenario }: { scenario: Scenario }) {
     );
   }
 
-  return (
-    <Stack spacing={3} sx={{ p: 3, alignItems: 'center', flex: 1, overflow: 'auto', minHeight: 0, width: '100%' }}>
-      {/* Breadcrumb path */}
-      {history.length > 0 && (
-        <Box sx={{ width: '100%', maxWidth: 560 }}>
-          <Breadcrumbs
-            separator={<NavigateNextIcon fontSize="small" />}
-            sx={{ flexWrap: 'wrap' }}
-          >
-            {history.map((entry, i) => (
-              <Chip
-                key={i}
-                label={entry.step.title}
-                size="small"
-                variant="outlined"
-                onClick={() => handleGoToHistoryStep(i)}
-                sx={{ fontSize: '0.72rem', cursor: 'pointer' }}
-              />
-            ))}
-            <Chip
-              label={currentStep.title}
-              size="small"
-              color="primary"
-              sx={{ fontSize: '0.72rem' }}
-            />
-          </Breadcrumbs>
-        </Box>
+  const stepPanel = (
+    <Stack
+      spacing={3}
+      sx={{
+        p: 3,
+        alignItems: 'center',
+        width: '100%',
+        flex: { md: 1 },
+        minHeight: { md: 0 },
+        overflow: { md: 'auto' },
+      }}
+    >
+      {PLAYER_PATH_LAYOUT_MODE === 'breadcrumbs' && history.length > 0 && (
+        <PreviewPathBreadcrumbs
+          history={history}
+          currentStep={currentStep}
+          onGoToHistoryStep={handleGoToHistoryStep}
+        />
       )}
+      <StepPlayer key={currentStepId} step={currentStep} onAdvance={handleAdvance} />
+    </Stack>
+  );
 
-      {/* Current step */}
-      {/* key forces full remount when step changes so local state resets */}
+  const timelinePanel = (
+    <PreviewPathTimeline
+      history={history}
+      currentStep={currentStep}
+      currentStepStartedAt={currentStepStartedAt}
+      initialStepId={scenario.scenario.initialStep}
+      onGoToHistoryStep={handleGoToHistoryStep}
+    />
+  );
+
+  if (PLAYER_PATH_LAYOUT_MODE === 'timeline') {
+    return (
+      <PreviewPlayerResizableLayout
+        leftPanel={stepPanel}
+        rightPanel={timelinePanel}
+        leftShare={splitLeftShare}
+        onLeftShareChange={setSplitLeftShare}
+      />
+    );
+  }
+
+  return (
+    <Stack
+      spacing={3}
+      sx={{
+        p: 3,
+        alignItems: 'center',
+        flex: 1,
+        overflow: 'auto',
+        minHeight: 0,
+        width: '100%',
+      }}
+    >
+      {history.length > 0 && (
+        <PreviewPathBreadcrumbs
+          history={history}
+          currentStep={currentStep}
+          onGoToHistoryStep={handleGoToHistoryStep}
+        />
+      )}
       <StepPlayer key={currentStepId} step={currentStep} onAdvance={handleAdvance} />
     </Stack>
   );
