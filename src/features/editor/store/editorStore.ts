@@ -9,6 +9,7 @@ import type {
   TransitionTarget,
   ValidationError,
 } from '../../../shared/types/scenario';
+import { migrateScenarioStepLegacyFields } from '../../../shared/lib/migrateScenarioStepLegacyFields';
 import { validateScenario } from '../../../shared/lib/validation';
 import { createDefaultStep } from './defaultViews';
 
@@ -84,13 +85,11 @@ export const useEditorStore = create<EditorState & EditorActions>()(
 
     loadScenario: scenario =>
       set(s => {
+        const migrated = migrateScenarioStepLegacyFields(scenario) as Scenario;
         s.scenario = {
-          ...scenario,
-          scenario: { ...scenario.scenario },
-          steps: scenario.steps.map(st => {
-            const { initial: _legacy, ...step } = st as typeof st & { initial?: boolean };
-            return step;
-          }),
+          ...migrated,
+          scenario: { ...migrated.scenario },
+          steps: migrated.steps,
         };
         s.isDirty = false;
         s.openStepId = null;

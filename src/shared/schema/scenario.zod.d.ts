@@ -3,7 +3,7 @@ export declare const stepSchema: z.ZodDiscriminatedUnion<[z.ZodObject<{
     id: z.ZodString;
     title: z.ZodString;
     description: z.ZodString;
-    editable: z.ZodBoolean;
+    revisitable: z.ZodBoolean;
     multitasking: z.ZodBoolean;
     report: z.ZodBoolean;
     finish: z.ZodBoolean;
@@ -32,7 +32,7 @@ export declare const stepSchema: z.ZodDiscriminatedUnion<[z.ZodObject<{
     id: z.ZodString;
     title: z.ZodString;
     description: z.ZodString;
-    editable: z.ZodBoolean;
+    revisitable: z.ZodBoolean;
     multitasking: z.ZodBoolean;
     report: z.ZodBoolean;
     finish: z.ZodBoolean;
@@ -66,7 +66,7 @@ export declare const stepSchema: z.ZodDiscriminatedUnion<[z.ZodObject<{
     id: z.ZodString;
     title: z.ZodString;
     description: z.ZodString;
-    editable: z.ZodBoolean;
+    revisitable: z.ZodBoolean;
     multitasking: z.ZodBoolean;
     report: z.ZodBoolean;
     finish: z.ZodBoolean;
@@ -98,7 +98,7 @@ export declare const stepSchema: z.ZodDiscriminatedUnion<[z.ZodObject<{
     id: z.ZodString;
     title: z.ZodString;
     description: z.ZodString;
-    editable: z.ZodBoolean;
+    revisitable: z.ZodBoolean;
     multitasking: z.ZodBoolean;
     report: z.ZodBoolean;
     finish: z.ZodBoolean;
@@ -123,10 +123,10 @@ export declare const stepSchema: z.ZodDiscriminatedUnion<[z.ZodObject<{
     view: z.ZodObject<{
         label: z.ZodString;
         source: z.ZodEnum<{
-            camera: "camera";
+            fixed: "fixed";
             map: "map";
             operator: "operator";
-            fixed: "fixed";
+            camera: "camera";
         }>;
         image: z.ZodNullable<z.ZodString>;
     }, z.core.$strip>;
@@ -134,7 +134,7 @@ export declare const stepSchema: z.ZodDiscriminatedUnion<[z.ZodObject<{
     id: z.ZodString;
     title: z.ZodString;
     description: z.ZodString;
-    editable: z.ZodBoolean;
+    revisitable: z.ZodBoolean;
     multitasking: z.ZodBoolean;
     report: z.ZodBoolean;
     finish: z.ZodBoolean;
@@ -169,7 +169,7 @@ export declare const stepSchema: z.ZodDiscriminatedUnion<[z.ZodObject<{
     id: z.ZodString;
     title: z.ZodString;
     description: z.ZodString;
-    editable: z.ZodBoolean;
+    revisitable: z.ZodBoolean;
     multitasking: z.ZodBoolean;
     report: z.ZodBoolean;
     finish: z.ZodBoolean;
@@ -206,7 +206,7 @@ export declare const stepSchema: z.ZodDiscriminatedUnion<[z.ZodObject<{
     id: z.ZodString;
     title: z.ZodString;
     description: z.ZodString;
-    editable: z.ZodBoolean;
+    revisitable: z.ZodBoolean;
     multitasking: z.ZodBoolean;
     report: z.ZodBoolean;
     finish: z.ZodBoolean;
@@ -253,7 +253,7 @@ export declare const scenarioSchema: z.ZodObject<{
         id: z.ZodString;
         title: z.ZodString;
         description: z.ZodString;
-        editable: z.ZodBoolean;
+        revisitable: z.ZodBoolean;
         multitasking: z.ZodBoolean;
         report: z.ZodBoolean;
         finish: z.ZodBoolean;
@@ -282,7 +282,7 @@ export declare const scenarioSchema: z.ZodObject<{
         id: z.ZodString;
         title: z.ZodString;
         description: z.ZodString;
-        editable: z.ZodBoolean;
+        revisitable: z.ZodBoolean;
         multitasking: z.ZodBoolean;
         report: z.ZodBoolean;
         finish: z.ZodBoolean;
@@ -316,7 +316,7 @@ export declare const scenarioSchema: z.ZodObject<{
         id: z.ZodString;
         title: z.ZodString;
         description: z.ZodString;
-        editable: z.ZodBoolean;
+        revisitable: z.ZodBoolean;
         multitasking: z.ZodBoolean;
         report: z.ZodBoolean;
         finish: z.ZodBoolean;
@@ -348,7 +348,7 @@ export declare const scenarioSchema: z.ZodObject<{
         id: z.ZodString;
         title: z.ZodString;
         description: z.ZodString;
-        editable: z.ZodBoolean;
+        revisitable: z.ZodBoolean;
         multitasking: z.ZodBoolean;
         report: z.ZodBoolean;
         finish: z.ZodBoolean;
@@ -373,10 +373,10 @@ export declare const scenarioSchema: z.ZodObject<{
         view: z.ZodObject<{
             label: z.ZodString;
             source: z.ZodEnum<{
-                camera: "camera";
+                fixed: "fixed";
                 map: "map";
                 operator: "operator";
-                fixed: "fixed";
+                camera: "camera";
             }>;
             image: z.ZodNullable<z.ZodString>;
         }, z.core.$strip>;
@@ -384,7 +384,7 @@ export declare const scenarioSchema: z.ZodObject<{
         id: z.ZodString;
         title: z.ZodString;
         description: z.ZodString;
-        editable: z.ZodBoolean;
+        revisitable: z.ZodBoolean;
         multitasking: z.ZodBoolean;
         report: z.ZodBoolean;
         finish: z.ZodBoolean;
@@ -419,7 +419,7 @@ export declare const scenarioSchema: z.ZodObject<{
         id: z.ZodString;
         title: z.ZodString;
         description: z.ZodString;
-        editable: z.ZodBoolean;
+        revisitable: z.ZodBoolean;
         multitasking: z.ZodBoolean;
         report: z.ZodBoolean;
         finish: z.ZodBoolean;
@@ -456,7 +456,7 @@ export declare const scenarioSchema: z.ZodObject<{
         id: z.ZodString;
         title: z.ZodString;
         description: z.ZodString;
-        editable: z.ZodBoolean;
+        revisitable: z.ZodBoolean;
         multitasking: z.ZodBoolean;
         report: z.ZodBoolean;
         finish: z.ZodBoolean;

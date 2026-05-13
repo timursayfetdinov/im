@@ -105,7 +105,7 @@ type StepBase = {
   id: string;
   title: string;
   description: string;
-  editable: boolean;
+  revisitable: boolean;
   multitasking: boolean;
   report: boolean;
   finish: boolean;

@@ -21,7 +21,7 @@ export function createDefaultStep(type: StepType): Step {
     id: '',
     title: '',
     description: '',
-    editable: true,
+    revisitable: true,
     multitasking: false,
     report: true,
     finish: false,

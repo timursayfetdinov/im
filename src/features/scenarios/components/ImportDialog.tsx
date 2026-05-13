@@ -12,6 +12,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
 import { useNavigate } from '@tanstack/react-router';
 
+import { migrateScenarioStepLegacyFields } from '../../../shared/lib/migrateScenarioStepLegacyFields';
 import { scenarioSchema } from '../../../shared/schema/scenario.zod';
 import { useImportScenario } from '../api/useScenarios';
 
@@ -48,7 +49,7 @@ export function ImportDialog({ open, onClose }: Props) {
         setErrors(['Файл содержит некорректный JSON']);
         return;
       }
-      const result = scenarioSchema.safeParse(parsed);
+      const result = scenarioSchema.safeParse(migrateScenarioStepLegacyFields(parsed));
       if (!result.success) {
         const messages = result.error.issues.map(
           (issue) => `${issue.path.join('.') || 'root'}: ${issue.message}`

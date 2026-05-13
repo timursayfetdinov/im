@@ -42,7 +42,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 id: string;
                 title: string;
                 description: string;
-                editable: boolean;
+                revisitable: boolean;
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;
@@ -77,7 +77,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 id: string;
                 title: string;
                 description: string;
-                editable: boolean;
+                revisitable: boolean;
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;
@@ -117,7 +117,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 id: string;
                 title: string;
                 description: string;
-                editable: boolean;
+                revisitable: boolean;
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;
@@ -155,7 +155,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 id: string;
                 title: string;
                 description: string;
-                editable: boolean;
+                revisitable: boolean;
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;
@@ -192,7 +192,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 id: string;
                 title: string;
                 description: string;
-                editable: boolean;
+                revisitable: boolean;
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;
@@ -233,7 +233,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 id: string;
                 title: string;
                 description: string;
-                editable: boolean;
+                revisitable: boolean;
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;
@@ -276,7 +276,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 id: string;
                 title: string;
                 description: string;
-                editable: boolean;
+                revisitable: boolean;
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;
@@ -359,7 +359,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 id: string;
                 title: string;
                 description: string;
-                editable: boolean;
+                revisitable: boolean;
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;
@@ -394,7 +394,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 id: string;
                 title: string;
                 description: string;
-                editable: boolean;
+                revisitable: boolean;
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;
@@ -434,7 +434,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 id: string;
                 title: string;
                 description: string;
-                editable: boolean;
+                revisitable: boolean;
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;
@@ -472,7 +472,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 id: string;
                 title: string;
                 description: string;
-                editable: boolean;
+                revisitable: boolean;
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;
@@ -509,7 +509,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 id: string;
                 title: string;
                 description: string;
-                editable: boolean;
+                revisitable: boolean;
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;
@@ -550,7 +550,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 id: string;
                 title: string;
                 description: string;
-                editable: boolean;
+                revisitable: boolean;
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;
@@ -593,7 +593,7 @@ export declare const useEditorStore: import("zustand").UseBoundStore<Omit<import
                 id: string;
                 title: string;
                 description: string;
-                editable: boolean;
+                revisitable: boolean;
                 multitasking: boolean;
                 report: boolean;
                 finish: boolean;

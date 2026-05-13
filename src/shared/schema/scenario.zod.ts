@@ -40,7 +40,7 @@ const stepBaseSchema = z.object({
   id: z.string().min(1),
   title: z.string().min(1),
   description: z.string(),
-  editable: z.boolean(),
+  revisitable: z.boolean(),
   multitasking: z.boolean(),
   report: z.boolean(),
   finish: z.boolean(),
