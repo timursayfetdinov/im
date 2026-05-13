@@ -1,3 +1,4 @@
+import { type ReactNode } from 'react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -6,27 +7,17 @@ import { alpha } from '@mui/material/styles';
 import type { Step } from '../../../shared/types/scenario';
 import { STEP_META } from '../../editor/config/stepMeta';
 import { formatStepValue } from '../lib/playerEngine';
+import {
+  formatStepRunTime,
+  getScenarioProcessingStartIso,
+  isFirstInitialHistoryIndex,
+} from '../lib/stepTimingUi';
 import type { PlayerHistoryEntry } from '../lib/playerTypes';
-
-function formatRunTime(iso: string): string {
-  try {
-    return new Date(iso).toLocaleString('ru-RU', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    });
-  } catch {
-    return iso;
-  }
-}
 
 type NodeProps = {
   step: Step;
   titleLine: string;
-  timeLine: string;
+  timingBlock?: ReactNode;
   detailLine?: string;
   description?: string;
   active?: boolean;
@@ -37,7 +28,7 @@ type NodeProps = {
 function TimelineNode({
   step,
   titleLine,
-  timeLine,
+  timingBlock,
   detailLine,
   description,
   active,
@@ -106,15 +97,17 @@ function TimelineNode({
       </Box>
 
       <Box sx={{ minWidth: 0, flex: 1, pt: 0.25 }}>
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', lineHeight: 1.3 }}>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ display: 'block', lineHeight: 1.3 }}
+        >
           {meta.label}
         </Typography>
         <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.35 }}>
           {titleLine}
         </Typography>
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.25 }}>
-          {timeLine}
-        </Typography>
+        {timingBlock ? <Box sx={{ mt: 0.25 }}>{timingBlock}</Box> : null}
         {detailLine ? (
           <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
             {detailLine}
@@ -124,7 +117,13 @@ function TimelineNode({
           <Typography
             variant="caption"
             color="text.disabled"
-            sx={{ display: 'block', mt: 0.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+            sx={{
+              display: 'block',
+              mt: 0.5,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
             title={description}
           >
             {description}
@@ -135,10 +134,68 @@ function TimelineNode({
   );
 }
 
+function historyTimingBlock(
+  entry: PlayerHistoryEntry,
+  index: number,
+  history: PlayerHistoryEntry[],
+  initialStepId: string
+): ReactNode | null {
+  const showStart = isFirstInitialHistoryIndex(history, index, initialStepId);
+  const showEnd = entry.step.finish;
+  if (!showStart && !showEnd) return null;
+  return (
+    <Stack spacing={0.25}>
+      {showStart ? (
+        <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.35 }}>
+          Начало: {formatStepRunTime(entry.startedAt)}
+        </Typography>
+      ) : null}
+      {showEnd ? (
+        <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.35 }}>
+          Конец: {formatStepRunTime(entry.completedAt)}
+        </Typography>
+      ) : null}
+    </Stack>
+  );
+}
+
+/** Текущий шаг: начало сессии (от первого шага), конец «в процессе» */
+function CurrentStepTiming({
+  sessionStartedAt,
+  isInitialStep,
+  isFinish,
+}: {
+  sessionStartedAt: string;
+  isInitialStep: boolean;
+  isFinish: boolean;
+}) {
+  if (isInitialStep) {
+    return (
+      <Stack spacing={0.25}>
+        <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.35 }}>
+          Начало: {formatStepRunTime(sessionStartedAt)}
+        </Typography>
+      </Stack>
+    );
+  }
+  if (isFinish) {
+    return (
+      <Stack spacing={0.25}>
+        <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1.35 }}>
+          Конец: {formatStepRunTime(sessionStartedAt)}
+        </Typography>
+      </Stack>
+    );
+  }
+  return null;
+}
+
 type Props = {
   history: PlayerHistoryEntry[];
   currentStep: Step;
   currentStepStartedAt: string;
+  /** `scenario.initialStep` — для «Начало» по `startedAt` на первом заходе на этот шаг */
+  initialStepId: string;
   onGoToHistoryStep: (index: number) => void;
 };
 
@@ -149,9 +206,17 @@ export function PreviewPathTimeline({
   history,
   currentStep,
   currentStepStartedAt,
+  initialStepId,
   onGoToHistoryStep,
 }: Props) {
   const hasCurrent = Boolean(currentStep);
+  const n = history.length;
+  const scenarioStartedAt = getScenarioProcessingStartIso(
+    history,
+    currentStep.id,
+    currentStepStartedAt,
+    initialStepId
+  );
 
   return (
     <Stack
@@ -164,18 +229,22 @@ export function PreviewPathTimeline({
         px: 0.5,
       }}
     >
-      <Typography variant="overline" color="text.secondary" sx={{ px: 1.5, pb: 1, letterSpacing: 0.08 }}>
+      <Typography
+        variant="overline"
+        color="text.secondary"
+        sx={{ px: 1.5, pb: 1, letterSpacing: 0.08 }}
+      >
         Ход сценария
       </Typography>
 
       {history.map((entry, i) => {
-        const showConnector = hasCurrent || i < history.length - 1;
+        const showConnector = hasCurrent || i < n - 1;
         return (
           <TimelineNode
             key={`${entry.step.id}-${entry.completedAt}-${i}`}
             step={entry.step}
             titleLine={entry.step.title || 'Без названия'}
-            timeLine={`Завершён: ${formatRunTime(entry.completedAt)}`}
+            timingBlock={historyTimingBlock(entry, i, history, initialStepId)}
             detailLine={formatStepValue(entry.step, entry.value)}
             description={entry.step.description?.trim() || undefined}
             onClick={() => onGoToHistoryStep(i)}
@@ -188,7 +257,13 @@ export function PreviewPathTimeline({
         <TimelineNode
           step={currentStep}
           titleLine={currentStep.title || 'Без названия'}
-          timeLine={`Начат: ${formatRunTime(currentStepStartedAt)}`}
+          timingBlock={
+            <CurrentStepTiming
+              isInitialStep={initialStepId === currentStep.id}
+              isFinish={currentStep.finish}
+              sessionStartedAt={scenarioStartedAt}
+            />
+          }
           detailLine="Текущий шаг"
           description={currentStep.description?.trim() || undefined}
           active

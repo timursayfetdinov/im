@@ -32,6 +32,11 @@ import type { Scenario } from '../../../shared/types/scenario';
 import { useScenario } from '../../scenarios/api/useScenarios';
 import { resolveNextStep, formatStepValue, type StepValue } from '../lib/playerEngine';
 import { PLAYER_PATH_LAYOUT_MODE } from '../lib/playerPreviewLayout';
+import {
+  formatDurationRu,
+  formatStepRunTime,
+  getScenarioProcessingStartIso,
+} from '../lib/stepTimingUi';
 import type { PlayerHistoryEntry } from '../lib/playerTypes';
 import { FinishPreviewDiagram } from './FinishPreviewDiagram';
 import { PreviewPathBreadcrumbs } from './PreviewPathBreadcrumbs';
@@ -112,6 +117,24 @@ function FinishScreen({
     window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
+  const initialStepId = scenario.scenario.initialStep;
+
+  const scenarioStartedAt = useMemo(
+    () =>
+      getScenarioProcessingStartIso(
+        history,
+        null,
+        history[0]?.startedAt ?? finishedAt,
+        initialStepId
+      ),
+    [finishedAt, history, initialStepId]
+  );
+
+  const runDurationLabel = useMemo(
+    () => formatDurationRu(scenarioStartedAt, finishedAt),
+    [finishedAt, scenarioStartedAt]
+  );
+
   return (
     <>
       <PreviewPlayerResizableLayout
@@ -160,17 +183,32 @@ function FinishScreen({
                     >
                       <ListItemText
                         primary={entry.step.title}
-                        secondary={formatStepValue(entry.step, entry.value)}
+                        secondary={
+                          <Typography variant="caption" color="text.secondary">
+                            {formatStepValue(entry.step, entry.value)}
+                          </Typography>
+                        }
                         slotProps={{
                           primary: { variant: 'body2', sx: { fontWeight: 500 } },
-                          secondary: { variant: 'caption' },
                         }}
                       />
                     </ListItem>
                   ))}
                 </List>
 
-                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', gap: 1, flexWrap: 'wrap' }}>
+                <Stack spacing={0.5} sx={{ mt: 2, mb: 1 }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                    Начало: {formatStepRunTime(scenarioStartedAt)}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                    Конец: {formatStepRunTime(finishedAt)}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                    Продолжительность: {runDurationLabel}
+                  </Typography>
+                </Stack>
+
+                <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center', gap: 1, flexWrap: 'wrap' }}>
                   <Button startIcon={<RefreshIcon />} variant="outlined" onClick={onReset}>
                     Сбросить и пройти снова
                   </Button>
@@ -379,6 +417,7 @@ function Player({ scenario }: { scenario: Scenario }) {
       history={history}
       currentStep={currentStep}
       currentStepStartedAt={currentStepStartedAt}
+      initialStepId={scenario.scenario.initialStep}
       onGoToHistoryStep={handleGoToHistoryStep}
     />
   );
