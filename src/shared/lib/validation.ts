@@ -4,20 +4,15 @@ export function validateScenario(scenario: Scenario): ValidationError[] {
   const errors: ValidationError[] = [];
   const { steps, scenario: meta } = scenario;
 
-  const initialSteps = steps.filter(s => s.initial);
-  const resolvedInitial = initialSteps.length === 1 ? initialSteps[0]!.id : meta.initialStep;
+  const resolvedInitial = meta.initialStep;
 
   // Rule 9: At least one finish step
   if (!steps.some(s => s.finish)) {
     errors.push({ code: 'NO_FINISH_STEP', message: 'Сценарий должен содержать хотя бы один финальный шаг (finish: true)' });
   }
 
-  // Rule: exactly one initial step
-  if (initialSteps.length === 0 && !meta.initialStep) {
+  if (!meta.initialStep) {
     errors.push({ code: 'EMPTY_INITIAL_STEP', message: 'Не указан начальный шаг сценария', field: 'initialStep' });
-  }
-  if (initialSteps.length > 1) {
-    errors.push({ code: 'INVALID_INITIAL_STEP', message: 'Указано несколько начальных шагов (должен быть один)', field: 'initialStep' });
   }
 
   const stepIds = new Set<string>();

@@ -4,6 +4,8 @@ export type StepNodeData = {
     step: Step;
     isInitial: boolean;
     isOrphan: boolean;
+    /** Подсветка пройденного шага (например, на экране завершения предпросмотра) */
+    visited?: boolean;
 };
 export type DiagramEdgeData = {
     condition?: Record<string, unknown>;
