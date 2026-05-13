@@ -160,7 +160,10 @@ export type ValidationErrorCode =
   | 'NO_FINISH_STEP'
   | 'EMPTY_STEP_ID'
   | 'EMPTY_STEP_TITLE'
-  | 'EMPTY_INITIAL_STEP';
+  | 'EMPTY_INITIAL_STEP'
+  | 'CHECKBOX_MIN_EXCEEDS_OPTIONS'
+  | 'CHECKBOX_MAX_LESS_THAN_MIN'
+  | 'CHECKBOX_MAX_EXCEEDS_OPTIONS';
 
 export type ValidationError = {
   code: ValidationErrorCode;
