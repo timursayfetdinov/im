@@ -348,26 +348,6 @@ function DatetimeSettings({
           />
         }
       />
-      <TextField
-        label="Минимальная дата/время"
-        size="small"
-        fullWidth
-        value={view.min ?? ''}
-        placeholder="Не ограничено"
-        helperText="ISO 8601: 2024-01-01T00:00"
-        onChange={e => patch({ min: e.target.value || null })}
-        onBlur={sync}
-      />
-      <TextField
-        label="Максимальная дата/время"
-        size="small"
-        fullWidth
-        value={view.max ?? ''}
-        placeholder="Не ограничено"
-        helperText="ISO 8601: 2099-12-31T23:59"
-        onChange={e => patch({ max: e.target.value || null })}
-        onBlur={sync}
-      />
     </Stack>
   );
 }
