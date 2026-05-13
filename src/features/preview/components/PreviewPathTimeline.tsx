@@ -89,6 +89,7 @@ function TimelineNode({
               width: 2,
               flexGrow: 1,
               minHeight: 12,
+              mt: 2,
               bgcolor: 'divider',
               borderRadius: 1,
             }}
