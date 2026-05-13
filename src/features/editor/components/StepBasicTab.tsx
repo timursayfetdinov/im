@@ -18,11 +18,10 @@ function useStepFieldError(stepId: string, field: string): string | undefined {
 
 type Props = { step: Step };
 
-type BoolField = 'initial' | 'finish' | 'report' | 'editable' | 'multitasking';
+type BoolField = 'finish' | 'report' | 'editable' | 'multitasking';
 type TextField_ = 'title' | 'description';
 
 const BOOL_FIELDS: { name: BoolField; label: string; hint: string }[] = [
-  { name: 'initial', label: 'Начальный шаг', hint: 'С этого шага начинается сценарий' },
   { name: 'finish', label: 'Завершение сценария', hint: 'Этот шаг является финальным' },
   {
     name: 'editable',
@@ -38,6 +37,9 @@ const BOOL_FIELDS: { name: BoolField; label: string; hint: string }[] = [
  */
 export function StepBasicTab({ step }: Props) {
   const updateStep = useEditorStore(s => s.updateStep);
+  const updateMeta = useEditorStore(s => s.updateMeta);
+  const initialStepId = useEditorStore(s => s.scenario?.scenario.initialStep ?? '');
+  const isInitial = initialStepId === step.id;
   const titleError = useStepFieldError(step.id, 'title');
   const finishError = useStepFieldError(step.id, 'finish');
 
@@ -45,7 +47,6 @@ export function StepBasicTab({ step }: Props) {
     defaultValues: {
       title: step.title,
       description: step.description,
-      initial: step.initial,
       finish: step.finish,
       report: step.report,
       editable: step.editable,
@@ -112,6 +113,28 @@ export function StepBasicTab({ step }: Props) {
           Флаги
         </Typography>
         <Stack spacing={0.5}>
+          <Box>
+            <FormControlLabel
+              sx={{ alignItems: 'flex-start', ml: 0 }}
+              label={
+                <Box sx={{ ml: 0.5 }}>
+                  <Typography variant="body2">Начальный шаг</Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    С этого шага начинается сценарий
+                  </Typography>
+                </Box>
+              }
+              control={
+                <Switch
+                  size="small"
+                  checked={isInitial}
+                  onChange={e => {
+                    updateMeta({ initialStep: e.target.checked ? step.id : '' });
+                  }}
+                />
+              }
+            />
+          </Box>
           {BOOL_FIELDS.map(({ name, label, hint }) => (
             <form.Field key={name} name={name}>
               {field => (

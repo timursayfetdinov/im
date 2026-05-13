@@ -73,13 +73,22 @@ function plural(n: number, one: string, few: string, many: string) {
 type RowProps = {
   step: Step;
   allSteps: Step[];
+  initialStepId: string;
   errorCount: number;
   onEdit: () => void;
   onDuplicate: () => void;
   onDelete: () => void;
 };
 
-function SortableRow({ step, allSteps, errorCount, onEdit, onDuplicate, onDelete }: RowProps) {
+function SortableRow({
+  step,
+  allSteps,
+  initialStepId,
+  errorCount,
+  onEdit,
+  onDuplicate,
+  onDelete,
+}: RowProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: step.id,
   });
@@ -128,7 +137,7 @@ function SortableRow({ step, allSteps, errorCount, onEdit, onDuplicate, onDelete
       {/* Flags */}
       <TableCell sx={{ width: 80 }}>
         <Box sx={{ display: 'flex', gap: 0.5 }}>
-          {step.initial ? (
+          {step.id === initialStepId ? (
             <Tooltip title="start">
               <PlayArrowIcon fontSize="small" sx={{ color: 'success.main' }} />
             </Tooltip>
@@ -189,6 +198,7 @@ function SortableRow({ step, allSteps, errorCount, onEdit, onDuplicate, onDelete
 
 export function StepsTable({ onRequestDelete }: { onRequestDelete?: (stepId: string) => void }) {
   const steps = useEditorStore(s => s.scenario?.steps ?? EMPTY_STEPS);
+  const initialStepId = useEditorStore(s => s.scenario?.scenario.initialStep ?? '');
   const validationErrors = useEditorStore(s => s.validationErrors ?? EMPTY_ERRORS);
   const addStep = useEditorStore(s => s.addStep);
   const duplicateStep = useEditorStore(s => s.duplicateStep);
@@ -262,6 +272,7 @@ export function StepsTable({ onRequestDelete }: { onRequestDelete?: (stepId: str
                       key={step.id}
                       step={step}
                       allSteps={steps}
+                      initialStepId={initialStepId}
                       errorCount={validationErrors.filter(e => e.stepId === step.id).length}
                       onEdit={() => openStep(step.id, 0)}
                       onDuplicate={() => duplicateStep(step.id)}

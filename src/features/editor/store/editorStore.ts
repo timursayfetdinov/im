@@ -84,15 +84,14 @@ export const useEditorStore = create<EditorState & EditorActions>()(
 
     loadScenario: scenario =>
       set(s => {
-        // Hydrate per-step `initial` flag from scenario meta for legacy data shape
-        const initialId = scenario.scenario.initialStep;
-        const hydrated: Scenario = {
+        s.scenario = {
           ...scenario,
           scenario: { ...scenario.scenario },
-          steps: scenario.steps.map(st => ({ ...st, initial: st.id === initialId })),
+          steps: scenario.steps.map(st => {
+            const { initial: _legacy, ...step } = st as typeof st & { initial?: boolean };
+            return step;
+          }),
         };
-
-        s.scenario = hydrated;
         s.isDirty = false;
         s.openStepId = null;
         revalidate(s);
@@ -123,9 +122,7 @@ export const useEditorStore = create<EditorState & EditorActions>()(
         if (!step.title.trim()) {
           step.title = makeUniqueDefaultTitle(s.scenario.steps, type);
         }
-        // If it's the first step (or initial not set), make it initial by default
         if (!s.scenario.scenario.initialStep) {
-          step.initial = true;
           s.scenario.scenario.initialStep = step.id;
         }
         s.scenario.steps.push(step as Step);
@@ -146,19 +143,6 @@ export const useEditorStore = create<EditorState & EditorActions>()(
         }
         Object.assign(step, patch);
 
-        // Keep scenario meta initialStep in sync with per-step `initial` flag.
-        if ('initial' in patch) {
-          if (patch.initial) {
-            for (const st of s.scenario.steps) st.initial = st.id === step.id;
-            s.scenario.scenario.initialStep = step.id;
-          } else {
-            // If user unsets the current initial step, clear meta too.
-            if (s.scenario.scenario.initialStep === step.id) {
-              s.scenario.scenario.initialStep = '';
-            }
-          }
-        }
-
         s.isDirty = true;
         revalidate(s);
       }),
@@ -176,6 +160,9 @@ export const useEditorStore = create<EditorState & EditorActions>()(
     removeStep: id =>
       set(s => {
         if (!s.scenario) return;
+        if (s.scenario.scenario.initialStep === id) {
+          s.scenario.scenario.initialStep = '';
+        }
         s.scenario.steps = s.scenario.steps.filter(st => st.id !== id);
         // Nullify any goto references to the removed step
         for (const st of s.scenario.steps) {

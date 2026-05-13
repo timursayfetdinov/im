@@ -25,7 +25,6 @@ export function createDefaultStep(type: StepType): Step {
     multitasking: false,
     report: true,
     finish: false,
-    initial: false,
     transitions: defaultTransitions(),
   };
 

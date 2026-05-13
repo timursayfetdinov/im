@@ -48,7 +48,6 @@ const DEFAULTS: Scenario[] = [
         multitasking: false,
         report: false,
         finish: false,
-        initial: true,
         view: { label: 'Начать' },
         transitions: { default: { goto: 'rb_priority', macro: null } },
       },
@@ -61,7 +60,6 @@ const DEFAULTS: Scenario[] = [
         multitasking: false,
         report: true,
         finish: false,
-        initial: false,
         view: {
           label: 'Приоритет',
           required: true,
@@ -88,7 +86,6 @@ const DEFAULTS: Scenario[] = [
         multitasking: false,
         report: false,
         finish: true,
-        initial: false,
         view: { label: 'Завершить' },
         transitions: { default: { goto: null, macro: null } },
       },
@@ -114,7 +111,6 @@ const DEFAULTS: Scenario[] = [
         multitasking: false,
         report: false,
         finish: false,
-        initial: true,
         view: { label: 'Начать' },
         transitions: { default: { goto: 'btn_finish', macro: null } },
       },
@@ -127,7 +123,6 @@ const DEFAULTS: Scenario[] = [
         multitasking: false,
         report: false,
         finish: true,
-        initial: false,
         view: { label: 'Завершить' },
         transitions: { default: { goto: null, macro: null } },
       },
@@ -152,7 +147,6 @@ const DEFAULTS: Scenario[] = [
         multitasking: false,
         report: false,
         finish: false,
-        initial: true,
         transitions: {
           default: {
             goto: 'DuxPj-ve',
@@ -172,7 +166,6 @@ const DEFAULTS: Scenario[] = [
         multitasking: false,
         report: false,
         finish: true,
-        initial: false,
         transitions: {
           default: {
             goto: null,
@@ -192,7 +185,6 @@ const DEFAULTS: Scenario[] = [
         multitasking: false,
         report: false,
         finish: false,
-        initial: false,
         transitions: {
           default: {
             goto: 'IoCMqAOn',
@@ -215,7 +207,6 @@ const DEFAULTS: Scenario[] = [
         multitasking: false,
         report: false,
         finish: false,
-        initial: false,
         transitions: {
           default: {
             goto: 'KmOJPU4Y',
@@ -273,7 +264,6 @@ const DEFAULTS: Scenario[] = [
         multitasking: false,
         report: false,
         finish: false,
-        initial: false,
         transitions: {
           default: {
             goto: 'NTIWlHeb',
@@ -298,7 +288,6 @@ const DEFAULTS: Scenario[] = [
         multitasking: false,
         report: false,
         finish: false,
-        initial: false,
         transitions: {
           default: {
             goto: 'v1PBa9iq',
@@ -320,7 +309,6 @@ const DEFAULTS: Scenario[] = [
         multitasking: false,
         report: false,
         finish: false,
-        initial: false,
         transitions: {
           default: {
             goto: 'KmOJPU4Y',
@@ -424,7 +412,6 @@ const DEFAULTS: Scenario[] = [
         multitasking: false,
         report: false,
         finish: false,
-        initial: false,
         transitions: {
           default: {
             goto: 'n5focKwx',
@@ -449,7 +436,6 @@ const DEFAULTS: Scenario[] = [
         multitasking: false,
         report: false,
         finish: false,
-        initial: false,
         transitions: {
           default: {
             goto: 'KmOJPU4Y',

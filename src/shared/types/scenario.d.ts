@@ -75,8 +75,6 @@ type StepBase = {
     multitasking: boolean;
     report: boolean;
     finish: boolean;
-    /** Начальный шаг сценария (в UI выбирается на шаге) */
-    initial: boolean;
     transitions: Transitions;
 };
 export type ButtonStep = StepBase & {

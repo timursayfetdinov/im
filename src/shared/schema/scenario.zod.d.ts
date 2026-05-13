@@ -7,7 +7,6 @@ export declare const stepSchema: z.ZodDiscriminatedUnion<[z.ZodObject<{
     multitasking: z.ZodBoolean;
     report: z.ZodBoolean;
     finish: z.ZodBoolean;
-    initial: z.ZodBoolean;
     transitions: z.ZodObject<{
         default: z.ZodObject<{
             goto: z.ZodNullable<z.ZodString>;
@@ -37,7 +36,6 @@ export declare const stepSchema: z.ZodDiscriminatedUnion<[z.ZodObject<{
     multitasking: z.ZodBoolean;
     report: z.ZodBoolean;
     finish: z.ZodBoolean;
-    initial: z.ZodBoolean;
     transitions: z.ZodObject<{
         default: z.ZodObject<{
             goto: z.ZodNullable<z.ZodString>;
@@ -72,7 +70,6 @@ export declare const stepSchema: z.ZodDiscriminatedUnion<[z.ZodObject<{
     multitasking: z.ZodBoolean;
     report: z.ZodBoolean;
     finish: z.ZodBoolean;
-    initial: z.ZodBoolean;
     transitions: z.ZodObject<{
         default: z.ZodObject<{
             goto: z.ZodNullable<z.ZodString>;
@@ -105,7 +102,6 @@ export declare const stepSchema: z.ZodDiscriminatedUnion<[z.ZodObject<{
     multitasking: z.ZodBoolean;
     report: z.ZodBoolean;
     finish: z.ZodBoolean;
-    initial: z.ZodBoolean;
     transitions: z.ZodObject<{
         default: z.ZodObject<{
             goto: z.ZodNullable<z.ZodString>;
@@ -127,10 +123,10 @@ export declare const stepSchema: z.ZodDiscriminatedUnion<[z.ZodObject<{
     view: z.ZodObject<{
         label: z.ZodString;
         source: z.ZodEnum<{
-            map: "map";
-            fixed: "fixed";
-            operator: "operator";
             camera: "camera";
+            map: "map";
+            operator: "operator";
+            fixed: "fixed";
         }>;
         image: z.ZodNullable<z.ZodString>;
     }, z.core.$strip>;
@@ -142,7 +138,6 @@ export declare const stepSchema: z.ZodDiscriminatedUnion<[z.ZodObject<{
     multitasking: z.ZodBoolean;
     report: z.ZodBoolean;
     finish: z.ZodBoolean;
-    initial: z.ZodBoolean;
     transitions: z.ZodObject<{
         default: z.ZodObject<{
             goto: z.ZodNullable<z.ZodString>;
@@ -178,7 +173,6 @@ export declare const stepSchema: z.ZodDiscriminatedUnion<[z.ZodObject<{
     multitasking: z.ZodBoolean;
     report: z.ZodBoolean;
     finish: z.ZodBoolean;
-    initial: z.ZodBoolean;
     transitions: z.ZodObject<{
         default: z.ZodObject<{
             goto: z.ZodNullable<z.ZodString>;
@@ -216,7 +210,6 @@ export declare const stepSchema: z.ZodDiscriminatedUnion<[z.ZodObject<{
     multitasking: z.ZodBoolean;
     report: z.ZodBoolean;
     finish: z.ZodBoolean;
-    initial: z.ZodBoolean;
     transitions: z.ZodObject<{
         default: z.ZodObject<{
             goto: z.ZodNullable<z.ZodString>;
@@ -264,7 +257,6 @@ export declare const scenarioSchema: z.ZodObject<{
         multitasking: z.ZodBoolean;
         report: z.ZodBoolean;
         finish: z.ZodBoolean;
-        initial: z.ZodBoolean;
         transitions: z.ZodObject<{
             default: z.ZodObject<{
                 goto: z.ZodNullable<z.ZodString>;
@@ -294,7 +286,6 @@ export declare const scenarioSchema: z.ZodObject<{
         multitasking: z.ZodBoolean;
         report: z.ZodBoolean;
         finish: z.ZodBoolean;
-        initial: z.ZodBoolean;
         transitions: z.ZodObject<{
             default: z.ZodObject<{
                 goto: z.ZodNullable<z.ZodString>;
@@ -329,7 +320,6 @@ export declare const scenarioSchema: z.ZodObject<{
         multitasking: z.ZodBoolean;
         report: z.ZodBoolean;
         finish: z.ZodBoolean;
-        initial: z.ZodBoolean;
         transitions: z.ZodObject<{
             default: z.ZodObject<{
                 goto: z.ZodNullable<z.ZodString>;
@@ -362,7 +352,6 @@ export declare const scenarioSchema: z.ZodObject<{
         multitasking: z.ZodBoolean;
         report: z.ZodBoolean;
         finish: z.ZodBoolean;
-        initial: z.ZodBoolean;
         transitions: z.ZodObject<{
             default: z.ZodObject<{
                 goto: z.ZodNullable<z.ZodString>;
@@ -384,10 +373,10 @@ export declare const scenarioSchema: z.ZodObject<{
         view: z.ZodObject<{
             label: z.ZodString;
             source: z.ZodEnum<{
-                map: "map";
-                fixed: "fixed";
-                operator: "operator";
                 camera: "camera";
+                map: "map";
+                operator: "operator";
+                fixed: "fixed";
             }>;
             image: z.ZodNullable<z.ZodString>;
         }, z.core.$strip>;
@@ -399,7 +388,6 @@ export declare const scenarioSchema: z.ZodObject<{
         multitasking: z.ZodBoolean;
         report: z.ZodBoolean;
         finish: z.ZodBoolean;
-        initial: z.ZodBoolean;
         transitions: z.ZodObject<{
             default: z.ZodObject<{
                 goto: z.ZodNullable<z.ZodString>;
@@ -435,7 +423,6 @@ export declare const scenarioSchema: z.ZodObject<{
         multitasking: z.ZodBoolean;
         report: z.ZodBoolean;
         finish: z.ZodBoolean;
-        initial: z.ZodBoolean;
         transitions: z.ZodObject<{
             default: z.ZodObject<{
                 goto: z.ZodNullable<z.ZodString>;
@@ -473,7 +460,6 @@ export declare const scenarioSchema: z.ZodObject<{
         multitasking: z.ZodBoolean;
         report: z.ZodBoolean;
         finish: z.ZodBoolean;
-        initial: z.ZodBoolean;
         transitions: z.ZodObject<{
             default: z.ZodObject<{
                 goto: z.ZodNullable<z.ZodString>;
